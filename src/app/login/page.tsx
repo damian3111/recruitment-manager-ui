@@ -28,13 +28,13 @@ export default function LoginPage() {
         mutationFn: async (data) => {
             try {
                 // const response = await axios.post("http://localhost:8080/api/login", data);
-                const response = await api.post("/login", data); // ✅ Use `api.post` instead of `axios.post`
+                const response = await api.post("/login", data);
 
                 // Extract token
                 const token = response.data;
                 console.log("token: " + token);
                 if (token) {
-                    localStorage.setItem("authToken", token); // ✅ Store token safely
+                    localStorage.setItem("authToken", token);
                 }
             } catch (error) {
                 throw error;
