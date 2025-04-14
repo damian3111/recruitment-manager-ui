@@ -28,7 +28,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-    const [queryClient] = useState(() => new QueryClient());
+    const [queryClient] = useState(() => new QueryClient()); // Create QueryClient instance
 
     return (
     <html lang="en">
