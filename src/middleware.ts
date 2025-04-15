@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-// import { decrypt } from '@/app/lib/session'
-import { cookies } from 'next/headers'
 import { jwtVerify } from 'jose'
 
 const publicRoutes = ['/login', '/register']
