@@ -27,7 +27,6 @@ export default async function middleware(req: NextRequest) {
     if (!payload.exp || Math.ceil(Date.now() / 1000) > payload.exp) {
         return NextResponse.redirect(new URL('/login', req.url))
     }
-
     return NextResponse.next();
 }
 
