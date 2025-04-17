@@ -11,6 +11,7 @@ export default async function middleware(req: NextRequest) {
 
     const token = req.cookies.get("authToken")?.value ?? "";
 
+    console.log(token);
     if (isPublicRoute) {
         return NextResponse.next();
     }
@@ -31,5 +32,7 @@ export default async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.png$).*)'],
+    matcher: [
+        '/((?!api|_next|.*\\..*).*)',
+    ],
 }
