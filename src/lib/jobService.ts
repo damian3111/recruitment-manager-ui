@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 // import axios from 'axios';
 import axios from '../utils/api';
 
-export type Job = {
+export type JobType = {
     id: number;
     title: string;
     description: string;
@@ -13,7 +13,7 @@ export type Job = {
 const API_URL = 'http://localhost:8080/jobs';
 
 export const useJobs = () => {
-    return useQuery<Job[]>({
+    return useQuery<JobType[]>({
         queryKey: ['jobs'],
         queryFn: async () => {
             const res = await axios.get("http://localhost:8080/jobs");
@@ -24,7 +24,7 @@ export const useJobs = () => {
 };
 
 export const useJob = (id: number) => {
-    return useQuery<Job>({
+    return useQuery<JobType>({
         queryKey: ['job', id],
         queryFn: async () => {
             const res = await axios.get(`${API_URL}/${id}`);
@@ -38,7 +38,7 @@ export const useCreateJob = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (newJob: Omit<Job, 'id'>) => {
+        mutationFn: async (newJob: Omit<JobType, 'id'>) => {
             const res = await axios.post(`${API_URL}`, newJob);
             return res.data;
         },
@@ -55,7 +55,7 @@ export const useUpdateJob = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (job: Job) => {
+        mutationFn: async (job: JobType) => {
             const res = await axios.put(`${API_URL}/${job.id}`, job);
             return res.data;
         },
@@ -79,9 +79,9 @@ export const useDeleteJob = () => {
             // Optimistic update
             await queryClient.cancelQueries({ queryKey: ['jobs'] });
 
-            const previousJobs = queryClient.getQueryData<Job[]>(['jobs']);
+            const previousJobs = queryClient.getQueryData<JobType[]>(['jobs']);
 
-            queryClient.setQueryData<Job[]>(['jobs'], (old = []) =>
+            queryClient.setQueryData<JobType[]>(['jobs'], (old = []) =>
                 old.filter((job) => job.id !== id)
             );
 

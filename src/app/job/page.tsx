@@ -1,6 +1,6 @@
 'use client';
 
-import { useJobs } from '@/lib/jobService';
+import { useJobs} from '@/lib/jobService';
 import { useEffect } from 'react';
 
 export default function JobsPage() {
