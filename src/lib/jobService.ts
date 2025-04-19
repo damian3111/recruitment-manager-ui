@@ -12,7 +12,6 @@ export type Job = {
 
 const API_URL = 'http://localhost:8080/jobs';
 
-// 🔍 1. Fetch all jobs
 export const useJobs = () => {
     return useQuery<Job[]>({
         queryKey: ['jobs'],
@@ -24,7 +23,6 @@ export const useJobs = () => {
     });
 };
 
-// 🔍 2. Fetch single job by ID
 export const useJob = (id: number) => {
     return useQuery<Job>({
         queryKey: ['job', id],
@@ -36,7 +34,6 @@ export const useJob = (id: number) => {
     });
 };
 
-// ➕ 3. Create new job
 export const useCreateJob = () => {
     const queryClient = useQueryClient();
 
@@ -54,7 +51,6 @@ export const useCreateJob = () => {
     });
 };
 
-// ✏️ 4. Update job
 export const useUpdateJob = () => {
     const queryClient = useQueryClient();
 
@@ -72,7 +68,6 @@ export const useUpdateJob = () => {
     });
 };
 
-// ❌ 5. Delete job with optimistic UI update
 export const useDeleteJob = () => {
     const queryClient = useQueryClient();
 
