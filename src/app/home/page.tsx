@@ -43,13 +43,13 @@ export default async function ProductsPage(
                     </Button>
                 </div>
             </div>
-            <TabsContent value="all">
+       {/*     <TabsContent value="all">
                 <ProductsTable
                     products={products}
                     offset={newOffset ?? 0}
                     totalProducts={totalProducts}
                 />
-            </TabsContent>
+            </TabsContent>*/}
         </Tabs>
     );
 }

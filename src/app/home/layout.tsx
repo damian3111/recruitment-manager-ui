@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+    BriefcaseBusiness,
     Home,
     LineChart,
     Package,
@@ -70,12 +71,12 @@ function DesktopNav() {
                     <span className="sr-only">Acme Inc</span>
                 </Link>
 
-                <NavItem href="#" label="Dashboard">
+                <NavItem href="/home" label="Home">
                     <Home className="h-5 w-5" />
                 </NavItem>
 
-                <NavItem href="#" label="Orders">
-                    <ShoppingCart className="h-5 w-5" />
+                <NavItem href="/jobs" label="Jobs">
+                    <BriefcaseBusiness className="h-5 w-5" />
                 </NavItem>
 
                 <NavItem href="/" label="Products">
