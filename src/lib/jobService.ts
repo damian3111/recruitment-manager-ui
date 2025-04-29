@@ -3,11 +3,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from '../utils/api';
 
 export type JobType = {
-    id: number;
+    id: string;
     title: string;
     description: string;
+    requirements?: string;
+    responsibilities?: string;
     location: string;
-    salary: number;
+    salary_min?: number;
+    salary_max?: number;
+    currency?: string;
+    company: string;
+    employment_type: "Full-time" | "Part-time" | "Contract" | "Temporary" | "Internship";
+    experience_level: "Junior" | "Mid" | "Senior" | "Lead";
+    industry?: string;
+    benefits?: string;
+    employment_mode?: "Remote" | "Hybrid" | "Onsite";
+    remote?: boolean;
+    posted_date?: string;
+    application_deadline?: string;
+    user_id?: string;
 };
 
 const API_URL = 'http://localhost:8080/jobs';
@@ -19,7 +33,19 @@ export const useJobs = () => {
             const res = await axios.get("http://localhost:8080/jobs");
             return res.data;
         },
-        staleTime: 1000 * 60, // 1 min cache
+        staleTime: 1000 * 60,
+    });
+};
+
+export const useJobsByUser = (userId: number) => {
+    return useQuery<JobType[]>({
+        queryKey: ['jobs', userId],
+        queryFn: async () => {
+            const res = await axios.get(`http://localhost:8080/jobs/user/${userId}`);
+            return res.data;
+        },
+        enabled: !!userId, // only run if userId is provided
+        staleTime: 1000 * 60,
     });
 };
 
