@@ -58,12 +58,33 @@
 
 'use client';
 
-import { useCandidates } from '@/lib/candidatesService';
+import {CandidateType, useCandidates} from '@/lib/candidatesService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/icons';
-
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical } from 'lucide-react';
+import Link from 'next/link';
+import {Button} from "@/components/ui/button";
+import ConfirmModal from "@/components/confirmationModal";
+import {useState} from "react";
+import toast from "react-hot-toast";
+import JobSelectModal from "@/components/JobSelectModal";
+import {JobType, useJobsByUser} from "@/lib/jobService";
+import {useCurrentUser} from "@/lib/userService";
+import {useSendInvite} from "@/lib/invitationService";
 export default function CandidatesPage() {
     const { data: candidates, isLoading, isError, error } = useCandidates();
+    const { data: user } = useCurrentUser();
+    const { data: jobs } = useJobsByUser(user?.id); // use session/user context
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
+    const [selectedJobs, setSelectedJobs] = useState<JobType[] | null>(null);
+    const sendInvitationMutation = useSendInvite();
 
     if (isLoading) {
         return (
@@ -83,6 +104,41 @@ export default function CandidatesPage() {
         );
     }
 
+    const handleSendInvitationClick = (candidate: CandidateType) => {
+
+        setSelectedCandidateId(candidate.id);
+        // setSelectedJobId(jobId);
+        setShowConfirm(true);
+    };
+    const confirmAction = (selectedJobs: JobType[]) => {
+
+        if (!user?.id || !selectedCandidateId || !selectedJobs) return;
+
+        setSelectedJobs(selectedJobs)
+        const jobIds: number[] = selectedJobs.map(job => job.id);
+
+        console.log("dsadassdasd");
+        console.log(jobIds);
+
+        sendInvitationMutation.mutate(
+            {
+                recruiter_id: user.id,
+                candidate_id: selectedCandidateId,
+                jobs: jobIds,
+                status: "sent"
+            },
+            {
+                onSuccess: () => {
+                    toast.success('✅ Invitation sent!');
+                    setShowConfirm(false);
+                },
+                onError: () => {
+                    toast.error('❌ Failed to send invitation.');
+                    setShowConfirm(false);
+                }
+            }
+        );
+    };
     return (
         <div className="space-y-4">
             {candidates?.map((candidate) => (
@@ -90,20 +146,44 @@ export default function CandidatesPage() {
                     key={candidate.id}
                     className="w-full p-4 rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-300"
                 >
-                    <CardContent className="space-y-1">
-                        <h2 className="text-xl font-bold text-gray-800">
-                            {candidate.firstName} {candidate.lastName}
-                        </h2>
-                        <p className="text-sm text-gray-600">{candidate.email}</p>
-                        <p className="text-sm text-gray-600">{candidate.phoneNumber}</p>
-                        <p className="text-sm font-medium text-gray-700">
-                            Status: <span className="text-blue-600">{candidate.status}</span>
-                        </p>
-                        <p className="text-xs text-gray-400">
-                            Applied at: {new Date(candidate.appliedAt).toLocaleString()}
-                        </p>
-                    </CardContent>
+                    <div className="flex justify-between items-start">
+                        <CardContent className="space-y-1">
+                            <h2 className="text-xl font-bold text-gray-800">
+                                {candidate.first_name} {candidate.lastName}
+                            </h2>
+                            <p className="text-sm text-gray-600">{candidate.email}</p>
+                            <p className="text-sm text-gray-600">{candidate.phoneNumber}</p>
+                            <p className="text-sm font-medium text-gray-700">
+                                Status: <span className="text-blue-600">{candidate.status}</span>
+                            </p>
+                            <p className="text-xs text-gray-400">
+                                Applied at: {new Date(candidate.appliedAt).toLocaleString()}
+                            </p>
+                        </CardContent>
+                        <Button size="sm" onClick={() => handleSendInvitationClick(candidate)}>
+                            I'm Interested
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button className="p-2 text-gray-500 hover:text-gray-800">
+                                    <MoreVertical className="h-5 w-5" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <Link href={`/candidates/${candidate.id}`}>
+                                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                                </Link>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <JobSelectModal
+                            open={showConfirm}
+                            jobs={jobs ?? []}
+                            onCancel={() => setShowConfirm(false)}
+                            onSubmit={confirmAction}
+                        />
+                    </div>
                 </Card>
+
             ))}
         </div>
     );
