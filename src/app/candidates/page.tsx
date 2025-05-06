@@ -110,35 +110,36 @@ export default function CandidatesPage() {
         // setSelectedJobId(jobId);
         setShowConfirm(true);
     };
-    const confirmAction = (selectedJobs: JobType[]) => {
+    // const confirmAction = (selectedJobs: JobType[]) => {
+    //
+    //     if (!user?.id || !selectedCandidateId || !selectedJobs) return;
+    //
+    //     setSelectedJobs(selectedJobs)
+    //     const jobIds: number[] = selectedJobs.map(job => job.id);
+    //
+    //     console.log("dsadassdasd");
+    //     console.log(jobIds);
+    //
+    //     sendInvitationMutation.mutate(
+    //         {
+    //             recruiter_id: user.id,
+    //             candidate_id: selectedCandidateId,
+    //             job_id: jobIds,
+    //             status: "sent"
+    //         },
+    //         {
+    //             onSuccess: () => {
+    //                 toast.success('✅ Invitation sent!');
+    //                 setShowConfirm(false);
+    //             },
+    //             onError: () => {
+    //                 toast.error('❌ Failed to send invitation.');
+    //                 setShowConfirm(false);
+    //             }
+    //         }
+    //     );
+    // };
 
-        if (!user?.id || !selectedCandidateId || !selectedJobs) return;
-
-        setSelectedJobs(selectedJobs)
-        const jobIds: number[] = selectedJobs.map(job => job.id);
-
-        console.log("dsadassdasd");
-        console.log(jobIds);
-
-        sendInvitationMutation.mutate(
-            {
-                recruiter_id: user.id,
-                candidate_id: selectedCandidateId,
-                jobs: jobIds,
-                status: "sent"
-            },
-            {
-                onSuccess: () => {
-                    toast.success('✅ Invitation sent!');
-                    setShowConfirm(false);
-                },
-                onError: () => {
-                    toast.error('❌ Failed to send invitation.');
-                    setShowConfirm(false);
-                }
-            }
-        );
-    };
     return (
         <div className="space-y-4">
             {candidates?.map((candidate) => (
@@ -177,10 +178,11 @@ export default function CandidatesPage() {
                         </DropdownMenu>
                         <JobSelectModal
                             open={showConfirm}
+                            candidateId={selectedCandidateId!}
                             jobs={jobs ?? []}
                             onCancel={() => setShowConfirm(false)}
-                            onSubmit={confirmAction}
                         />
+
                     </div>
                 </Card>
 
