@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from '../utils/api';
 
 export type JobType = {
-    id: string;
+    id: number;
     title: string;
     description: string;
     requirements?: string;
