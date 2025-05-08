@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { JobType } from '@/lib/jobService';
 import {
+    useDeleteInvite,
     useInvitesByCandidate,
     useInvitesByCandidateAndRecruiter,
     useSendInvite,
@@ -27,6 +28,7 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
     const { data: invites, refetch, isFetching } = useInvitesByCandidateAndRecruiter(candidateId, user?.id);
     const sendInvite = useSendInvite();
     const cancelInvite = useUpdateInviteStatus();
+    const deleteInvite = useDeleteInvite();
 
     useEffect(() => {
         if (open && invites) {
@@ -58,29 +60,23 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
         );
     };
 
-    const handleCancel = async (jobId: number) => {
+    const handleCancel = (jobId: number) => {
         const invite = invites?.find(inv =>
             inv.status === 'sent' &&
-            inv.jobs.includes(jobId) &&
+            inv.job_id === jobId &&
             inv.candidate_id === candidateId
         );
 
         if (!invite) return;
 
-        // cancelInvite.mutate(
-        //     {
-        //         id: invite.id,
-        //         status: 'cancelled', // or 'declined' depending on your API
-        //     },
-        //     {
-        //         onSuccess: () => {
-        //             setSentJobIds(prev => prev.filter(id => id !== jobId));
-        //             toast.success('✅ Invitation canceled!');
-        //             refetch();
-        //         },
-        //         onError: () => toast.error('❌ Failed to cancel invitation.'),
-        //     }
-        // );
+        deleteInvite.mutate(invite.id, {
+            onSuccess: () => {
+                setSentJobIds(prev => prev.filter(id => id !== jobId));
+                toast.success('✅ Invitation deleted!');
+                refetch(); // jeśli potrzebne
+            },
+            onError: () => toast.error('❌ Failed to delete invitation.'),
+        });
     };
 
     if (!open) return null;
