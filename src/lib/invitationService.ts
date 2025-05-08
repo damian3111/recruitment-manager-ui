@@ -8,7 +8,7 @@ export type InvitationType = {
     id: number;
     recruiter_id: number;
     candidate_id: number;
-    jobs: number[];
+    job_id: number;
     status: InvitationStatus;
     created_at: string;
 };
@@ -34,6 +34,22 @@ export const useInvitesByCandidate = (candidateId: number) => {
             return res.data;
         },
         enabled: !!candidateId,
+    });
+};
+
+export const useInvitesByCandidateAndRecruiter = (candidateId: number, recruiterId: number) => {
+    return useQuery<InvitationType[]>({
+        queryKey: ['invites', 'candidate-recruiter', candidateId, recruiterId],
+        queryFn: async () => {
+            const res = await axios.get(`${API_URL}/by-candidate-and-recruiter`, {
+                params: {
+                    candidateId,
+                    recruiterId,
+                },
+            });
+            return res.data;
+        },
+        enabled: !!candidateId && !!recruiterId,
     });
 };
 
@@ -64,7 +80,21 @@ export const useSendInvite = () => {
         },
     });
 };
+export const useDeleteInvite = () => {
+    const queryClient = useQueryClient();
 
+    return useMutation({
+        mutationFn: async (id: number) => {
+            await axios.delete(`${API_URL}/${id}`);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['invites'] });
+        },
+        onError: (err) => {
+            console.error('❌ Error deleting invite:', err);
+        },
+    });
+};
 export const useUpdateInviteStatus = () => {
     const queryClient = useQueryClient();
 
