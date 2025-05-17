@@ -30,11 +30,11 @@ export default function CandidateFiltersComponent({
     onChange: (filters: CandidateFilters) => void;
 }) {
     const [filters, setFilters] = useState<CandidateFilters>({});
-    const debouncedFilters = useDebounce(filters, 500);
+    // const debouncedFilters = useDebounce(filters, 500);
 
     useEffect(() => {
-        onChange(debouncedFilters);
-    }, [debouncedFilters, onChange]);
+        onChange(filters);
+    }, [filters, onChange]);
 
     const handleChange = (key: keyof CandidateFilters, value: string | number) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
