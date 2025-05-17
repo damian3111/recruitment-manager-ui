@@ -1,3 +1,4 @@
+"use client"
 import { Button } from '@/components/ui/button'
 import {
     Card,
@@ -15,8 +16,35 @@ import { Search } from '@/components/search'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recents-sales'
+import Link from "next/link";
+import {ConfirmModal} from "@/components/ConfirmModal";
+import React, {useState} from "react";
+import {useJobs, useJobsByUser} from "@/lib/jobService";
+import {useCurrentUser} from "@/lib/userService";
+import {useCandidateByEmail, useCandidates} from "@/lib/candidatesService";
+import {
+    useDeleteInvite,
+    useInvitesByCandidateAndRecruiter,
+    useInvitesByJobUser,
+    useInvitesByRecruiter
+} from "@/lib/invitationService";
+import {Badge} from "@/components/ui/badge";
 
 export default function Dashboard() {
+    const { data: user } = useCurrentUser()
+    const { data: invites } = useInvitesByRecruiter(user?.id)
+    const { data: jobs } = useJobsByUser(user?.id)
+    const { data: candidates } = useCandidates()
+    const { data: invitesByRecruiter, isLoading: invitesLoading } = useInvitesByRecruiter(user?.id);
+    const { data: invitesByJobUser } = useInvitesByJobUser(user?.id);
+
+    if (!invites || !jobs || !candidates || !user || !invitesByRecruiter || !invitesByJobUser) return null
+
+    const recruiterInvites = invites.filter((i) => i.recruiter_id === user.id)
+
+    const getJob = (jobId: number) => jobs.find((j) => j.id === jobId)
+    const getCandidate = (candidateId: number) => candidates.find((c) => c.id === candidateId)
+
     return (
         <>
             {/* ===== Top Heading ===== */}
@@ -45,14 +73,11 @@ export default function Dashboard() {
                     <div className='w-full overflow-x-auto pb-2'>
                         <TabsList>
                             <TabsTrigger value='overview'>Overview</TabsTrigger>
-                            <TabsTrigger value='analytics' disabled>
+                            <TabsTrigger value='analytics'>
                                 Analytics
                             </TabsTrigger>
-                            <TabsTrigger value='reports' disabled>
+                            <TabsTrigger value='reports'>
                                 Reports
-                            </TabsTrigger>
-                            <TabsTrigger value='notifications' disabled>
-                                Notifications
                             </TabsTrigger>
                         </TabsList>
                     </div>
@@ -179,6 +204,165 @@ export default function Dashboard() {
                                 <CardContent>
                                     <RecentSales />
                                 </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value='analytics' className='space-y-4'>
+                        <div className="space-y-4">
+                            <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
+                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations</h2>
+
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full table-auto border-collapse text-sm text-left">
+                                        <thead>
+                                        <tr className="bg-gray-100 text-gray-700 font-medium">
+                                            <th className="px-4 py-2 border-b">Job</th>
+                                            <th className="px-4 py-2 border-b">Candidate</th>
+                                            <th className="px-4 py-2 border-b">Status</th>
+                                            <th className="px-4 py-2 border-b">Sent At</th>
+                                            <th className="px-4 py-2 border-b">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {invitesByRecruiter.map((invite) => {
+                                            const job = getJob(invite.job_id)
+                                            const candidate = getCandidate(invite.candidate_id)
+
+                                            return (
+                                                <tr key={invite.id} className="hover:bg-gray-50 transition">
+                                                    <td className="px-4 py-3 border-b">
+                                                        {job ? (
+                                                            <>
+                                                                <div className="font-medium">{job.title}</div>
+                                                                <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-400">Unknown Job</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b">
+                                                        {candidate ? (
+                                                            <>
+                                                                <div className="font-medium">{candidate.first_name} {candidate.last_name}</div>
+                                                                <div className="text-xs text-gray-500">{candidate.email}</div>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-400">Unknown Candidate</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b">
+                                                        <Badge
+                                                            variant={
+                                                                invite.status === "sent"
+                                                                    ? "secondary"
+                                                                    : invite.status === "accepted"
+                                                                        ? "success"
+                                                                        : "destructive"
+                                                            }
+                                                        >
+                                                            {invite.status}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b text-gray-600">
+                                                        {new Date(invite.created_at).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b text-blue-600 space-x-2">
+                                                        {job && (
+                                                            <Link href={`/jobs/${job.id}`} className="hover:underline">
+                                                                View Job
+                                                            </Link>
+                                                        )}
+                                                        {candidate && (
+                                                            <Link href={`/candidates/${candidate.id}`} className="hover:underline">
+                                                                View Candidate
+                                                            </Link>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </Card>
+                        </div>                    </TabsContent>
+                    <TabsContent value='reports' className='space-y-4'>
+                        <div className="space-y-4">
+                            <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
+                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Reports)</h2>
+
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full table-auto border-collapse text-sm text-left">
+                                        <thead>
+                                        <tr className="bg-gray-100 text-gray-700 font-medium">
+                                            <th className="px-4 py-2 border-b">Job</th>
+                                            <th className="px-4 py-2 border-b">Candidate</th>
+                                            <th className="px-4 py-2 border-b">Status</th>
+                                            <th className="px-4 py-2 border-b">Sent At</th>
+                                            <th className="px-4 py-2 border-b">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {invitesByJobUser.map((invite) => {
+                                            const job = getJob(invite.job_id)
+                                            const candidate = getCandidate(invite.candidate_id)
+
+                                            return (
+                                                <tr key={invite.id} className="hover:bg-gray-50 transition">
+                                                    <td className="px-4 py-3 border-b">
+                                                        {job ? (
+                                                            <>
+                                                                <div className="font-medium">{job.title}</div>
+                                                                <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-400">Unknown Job</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b">
+                                                        {candidate ? (
+                                                            <>
+                                                                <div className="font-medium">{candidate.first_name} {candidate.last_name}</div>
+                                                                <div className="text-xs text-gray-500">{candidate.email}</div>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-gray-400">Unknown Candidate</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b">
+                                                        <Badge
+                                                            variant={
+                                                                invite.status === "sent"
+                                                                    ? "secondary"
+                                                                    : invite.status === "accepted"
+                                                                        ? "success"
+                                                                        : "destructive"
+                                                            }
+                                                        >
+                                                            {invite.status}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b text-gray-600">
+                                                        {new Date(invite.created_at).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-4 py-3 border-b text-blue-600 space-x-2">
+                                                        {job && (
+                                                            <Link href={`/jobs/${job.id}`} className="hover:underline">
+                                                                View Job
+                                                            </Link>
+                                                        )}
+                                                        {candidate && (
+                                                            <Link href={`/candidates/${candidate.id}`} className="hover:underline">
+                                                                View Candidate
+                                                            </Link>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        })}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </Card>
                         </div>
                     </TabsContent>
