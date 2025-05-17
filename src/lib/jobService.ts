@@ -24,6 +24,21 @@ export type JobType = {
     user_id?: string;
 };
 
+export type JobFilter = Partial<{
+    title: string;
+    employment_type: string;
+    location: string;
+    salary_min: number;
+    salary_max: number;
+    currency: string;
+    experience_level: string;
+    industry: string;
+    company_name: string;
+    employment_mode: string;
+    posted_date: string;
+    application_deadline: string;
+}>;
+
 const API_URL = 'http://localhost:8080/jobs';
 
 export const useJobs = () => {
@@ -37,6 +52,17 @@ export const useJobs = () => {
     });
 };
 
+export const useFilteredJobs = (filter: JobFilter) => {
+    return useQuery<JobType[]>({
+        queryKey: ['jobs', 'filter', filter],
+        queryFn: async () => {
+            const res = await axios.post(`${API_URL}/filter`, filter);
+            return res.data;
+        },
+        staleTime: 1000 * 60,
+        enabled: !!filter,
+    });
+};
 export const useJobsByUser = (userId: number) => {
     return useQuery<JobType[]>({
         queryKey: ['jobs', userId],
