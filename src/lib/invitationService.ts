@@ -80,6 +80,19 @@ export const useSendInvite = () => {
         },
     });
 };
+export const useInvitesByJobUser = (userId: number) => {
+    return useQuery<InvitationType[]>({
+        queryKey: ['invites', 'job-user', userId],
+        queryFn: async () => {
+            const res = await axios.get(`${API_URL}/received-by-recruiter`, {
+                params: { userId },
+            });
+            return res.data;
+        },
+        enabled: !!userId,
+    });
+};
+
 export const useDeleteInvite = () => {
     const queryClient = useQueryClient();
 
