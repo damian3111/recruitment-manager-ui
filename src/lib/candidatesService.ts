@@ -23,6 +23,24 @@ export type CandidateType = {
     skills: string;
 };
 
+export type CandidateFilter = {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone?: string;
+    headline?: string;
+    min_experience?: number;
+    max_experience?: number;
+    education?: string;
+    certifications?: string;
+    projects?: string;
+    salary_expectation?: string;
+    work_style?: 'Remote' | 'Hybrid' | 'On-site';
+    applied_date_from?: string;
+    applied_date_to?: string;
+    location?: string;
+    skills?: string;
+};
 
 const API_URL = 'http://localhost:8080/candidates';
 
@@ -34,6 +52,18 @@ export const useCandidates = () => {
             return res.data;
         },
         staleTime: 1000 * 60,
+    });
+};
+
+export const useFilteredCandidates = (filter: CandidateFilter) => {
+    return useQuery<CandidateType[]>({
+        queryKey: ['candidates', filter],
+        queryFn: async () => {
+            const res = await axios.post(`${API_URL}/filter`, filter);
+            return res.data;
+        },
+        staleTime: 1000 * 60,
+        enabled: !!filter, // Optional: disables query if no filter provided
     });
 };
 
