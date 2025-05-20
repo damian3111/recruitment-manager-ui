@@ -38,12 +38,12 @@ export default function Dashboard() {
     const { data: invitesByRecruiter, isLoading: invitesLoading } = useInvitesByRecruiter(user?.id);
     const { data: invitesByJobUser } = useInvitesByJobUser(user?.id);
 
-    if (!invites || !jobs || !candidates || !user || !invitesByRecruiter || !invitesByJobUser) return null
+    if (!invites || !jobs || !user || !invitesByRecruiter || !invitesByJobUser) return null
 
     const recruiterInvites = invites.filter((i) => i.recruiter_id === user.id)
 
     const getJob = (jobId: number) => jobs.find((j) => j.id === jobId)
-    const getCandidate = (candidateId: number) => candidates.find((c) => c.id === candidateId)
+    const getCandidate = (candidateId: number) => candidates?.find((c) => c.id === candidateId)
 
     return (
         <>

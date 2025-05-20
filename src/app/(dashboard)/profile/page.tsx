@@ -73,7 +73,31 @@ export default function CandidateForm() {
             }));
         }
     }, [user, reset]);
-
+    useEffect(() => {
+        if (candidate) {
+            reset({
+                first_name: candidate.first_name,
+                last_name: candidate.last_name,
+                email: candidate.email,
+                phone: candidate.phone ?? '',
+                profile_picture_url: candidate.profile_picture_url ?? '',
+                headline: candidate.headline ?? '',
+                summary: candidate.summary ?? '',
+                experience: candidate.experience ?? '',
+                years_of_experience: candidate.years_of_experience,
+                education: candidate.education ?? '',
+                certifications: candidate.certifications ?? '',
+                work_experiences: candidate.work_experiences ?? '',
+                projects: candidate.projects ?? '',
+                media_url: candidate.media_url ?? '',
+                salary_expectation: candidate.salary_expectation ?? '',
+                work_style: candidate.work_style,
+                applied_date: candidate.applied_date ?? '',
+                location: candidate.location ?? '',
+                skills: candidate.skills ?? '',
+            });
+        }
+    }, [candidate, reset]);
     const onSubmit = (data: CandidateFormType) => {
         try {
             const normalizedData: Omit<CandidateType, 'id'> = {

@@ -115,11 +115,11 @@ function DesktopNav() {
                 <NavItem href="/" label="Products">
                     <Package className="h-5 w-5" />
                 </NavItem>
-                <NavItem href="/customers" label="Customers">
+                <NavItem href="/candidates" label="Customers">
                     <Users2 className="h-5 w-5" />
                 </NavItem>
 
-                <NavItem href="#" label="Analytics">
+                <NavItem href="/analytics" label="Analytics">
                     <LineChart className="h-5 w-5" />
                 </NavItem>
             </nav>

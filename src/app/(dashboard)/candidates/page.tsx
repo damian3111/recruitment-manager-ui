@@ -1,6 +1,6 @@
 'use client';
 
-import { CandidateType, useCandidates, useFilteredCandidates } from '@/lib/candidatesService';
+import { CandidateType, useFilteredCandidates } from '@/lib/candidatesService';
 import { Card, CardContent } from '@/components/ui/card';
 import { Spinner } from '@/components/icons';
 import {
@@ -9,7 +9,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical } from 'lucide-react';
+import {Bookmark, BriefcaseBusiness, MoreVertical} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/confirmationModal";
@@ -94,6 +94,8 @@ export default function CandidatesPage() {
                             <Button size="sm" onClick={() => handleSendInvitationClick(candidate)}>
                                 I'm Interested
                             </Button>
+                            <Bookmark className="h-6 w-6"/>
+
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button className="p-2 text-gray-500 hover:text-gray-800">
