@@ -47,8 +47,12 @@ export default function Dashboard() {
 
     const getJob = (jobId: number) => jobs2?.find((j) => j.id === jobId)
     const getCandidate = (candidateId: number) => candidates?.find((c) => c.id === candidateId);
-    console.log(user);
-    let roleBasedInvites = (user?.userRole == "recruiter" ? invitesByJobUser : invitesReceivedByRecruited);
+    // let roleBasedInvites = (user?.userRole == "recruiter" ? invitesByJobUser : invitesReceivedByRecruited);
+    let roleBasedInvites = invitesReceivedByRecruited;
+    let allInvites = [...(invitesByJobUser ?? []), ...(invitesReceivedByRecruited ?? [])];
+    console.log("user");
+    console.log(roleBasedInvites);
+
     const { mutate } = useUpdateInviteStatus();
 
     const handleCancel = (jobId: number, candidateId: number) => {
@@ -384,7 +388,7 @@ export default function Dashboard() {
                                         </thead>
                                         <tbody>
                                         {
-                                            roleBasedInvites?.filter(invite => invite.status != "accepted").map((invite) => {
+                                            invitesReceivedByRecruited?.filter(invite => invite.status != "accepted").map((invite) => {
                                             const job = getJob(invite.job_id)
                                             const candidate = getCandidate(invite.candidate_id)
 
@@ -481,7 +485,7 @@ export default function Dashboard() {
                                         </thead>
                                         <tbody>
                                         {
-                                            roleBasedInvites?.filter(invite => invite.status == "accepted").map((invite) => {
+                                            invitesByJobUser?.filter(invite => invite.status == "accepted").map((invite) => {
                                                 const job = getJob(invite.job_id)
                                                 const candidate = getCandidate(invite.candidate_id)
 
