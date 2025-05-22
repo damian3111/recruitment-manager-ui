@@ -13,12 +13,12 @@ import {Bookmark, BriefcaseBusiness, MoreVertical} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
 import ConfirmModal from "@/components/confirmationModal";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import JobSelectModal from "@/components/JobSelectModal";
 import { JobType, useJobsByUser } from "@/lib/jobService";
 import { useCurrentUser } from "@/lib/userService";
-import { useSendInvite } from "@/lib/invitationService";
+import {useDeleteInvite, useSendInvite} from "@/lib/invitationService";
 import CandidateFilters, { CandidateFilter } from "@/components/CandidateFilters";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 
@@ -32,8 +32,15 @@ export default function CandidatesPage() {
     const [filters, setFilters] = useState<CandidateFilter>({});
     const debouncedFilters = useDebouncedValue(filters, 500);
     const [focusedField, setFocusedField] = useState<"first_name" | "last_name">("first_name");
-
-    const { data: candidates, isLoading, isError, error } = useFilteredCandidates(debouncedFilters);
+    const deleteInvite = useDeleteInvite();
+    const [bookmarkedCandidateIds, setBookmarkedCandidateIds] = useState<number[]>([]);
+    const [page, setPage] = useState(0);
+    const pageSize = 10;
+    const { data: candidates, isLoading, isError, error } = useFilteredCandidates(
+        debouncedFilters,
+        page,
+        pageSize,
+    );    // const { data, isLoading } = useFilteredCandidates({ filter,w limit });
 
     useEffect(() => {
         // console.log("Filters Updated");
@@ -56,11 +63,19 @@ export default function CandidatesPage() {
             </p>
         );
     }
+    const toggleBookmark = (candidateId: number) => {
+        setBookmarkedCandidateIds(prev =>
+            prev.includes(candidateId)
+                ? prev.filter(id => id !== candidateId)
+                : [...prev, candidateId]
+        );
+    };
 
     const handleSendInvitationClick = (candidate: CandidateType) => {
         setSelectedCandidateId(candidate.id);
         setShowConfirm(true);
     };
+
 
     return (
         <div className="flex gap-8">
@@ -91,11 +106,19 @@ export default function CandidatesPage() {
                                     Applied at: {new Date(candidate.appliedAt).toLocaleString()}
                                 </p>
                             </CardContent>
-                            <Button size="sm" onClick={() => handleSendInvitationClick(candidate)}>
-                                I'm Interested
-                            </Button>
-                            <Bookmark className="h-6 w-6"/>
-
+                            {user?.userRole !== 'recruited' && (
+                                <div className="flex items-center gap-2">
+                                    <Button size="sm" onClick={() => handleSendInvitationClick(candidate)}>
+                                        I'm Interested
+                                    </Button>
+                                    <button onClick={() => toggleBookmark(candidate.id)}>
+                                        <Bookmark
+                                            className="h-6 w-6 transition-colors duration-300"
+                                            stroke={bookmarkedCandidateIds.includes(candidate.id) ? "gold" : "black"}
+                                            fill={bookmarkedCandidateIds.includes(candidate.id) ? "gold" : "none"}
+                                        />
+                                    </button>                                </div>
+                            )}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button className="p-2 text-gray-500 hover:text-gray-800">
@@ -111,6 +134,25 @@ export default function CandidatesPage() {
                         </div>
                     </Card>
                 ))}
+                {candidates && (
+                    <div className="flex justify-center gap-4 mt-6">
+                        <Button
+                            onClick={() => setPage(prev => Math.max(prev - 1, 0))}
+                            disabled={page === 0}
+                        >
+                            Previous
+                        </Button>
+                        <span className="flex items-center px-2">
+      Page {page + 1} of {candidates.totalPages}
+    </span>
+                        <Button
+                            onClick={() => setPage(prev => Math.min(prev + 1, candidates.totalPages - 1))}
+                            disabled={page >= candidates.totalPages - 1}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                )}
                 <JobSelectModal
                     open={showConfirm}
                     candidateId={selectedCandidateId!}
