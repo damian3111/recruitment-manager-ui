@@ -146,23 +146,22 @@ export default function Dashboard() {
             {/* ===== Main ===== */}
             <Main className="w-full min-h-screen px-4 sm:px-6 lg:px-8 max-w-none">
                 <div className='mb-2 flex items-center justify-between space-y-2'>
-                    <h1 className='text-2xl font-bold tracking-tight'>Dashboard</h1>
-                    <div className='flex items-center space-x-2'>
-                        <Button>Download</Button>
+                    <h1 className='text-2xl font-bold tracking-tight'>Invitations</h1>
+                    <div className='flex h-10 items-center space-x-2'>
                     </div>
                 </div>
                 <Tabs
                     orientation='vertical'
-                    defaultValue='overview'
+                    defaultValue='sent'
                     className='space-y-4'
                 >
                     <div className='w-full overflow-x-auto pb-2'>
                         <TabsList>
-                            <TabsTrigger value='analytics'>
-                                Analytics
+                            <TabsTrigger value='sent'>
+                                Sent
                             </TabsTrigger>
-                            <TabsTrigger value='reports'>
-                                Reports
+                            <TabsTrigger value='received'>
+                                Received
                             </TabsTrigger>
                             <TabsTrigger value='accepted'>
                                 Accepted
@@ -172,7 +171,7 @@ export default function Dashboard() {
                             </TabsTrigger>
                         </TabsList>
                     </div>
-                    <TabsContent value='analytics' className='space-y-4'>
+                    <TabsContent value='sent' className='space-y-4'>
                         <div className="space-y-4">
                             <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
                                 <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations</h2>
@@ -258,10 +257,10 @@ export default function Dashboard() {
                                 </div>
                             </Card>
                         </div>                    </TabsContent>
-                    <TabsContent value='reports' className='space-y-4'>
+                    <TabsContent value='received' className='space-y-4'>
                         <div className="space-y-4">
                             <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Reports)</h2>
+                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Received)</h2>
 
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full table-auto border-collapse text-sm text-left">
@@ -358,7 +357,7 @@ export default function Dashboard() {
                     <TabsContent value='accepted' className='space-y-4'>
                         <div className="space-y-4">
                             <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Reports)</h2>
+                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Accepted)</h2>
 
                                 <div className="overflow-x-auto">
                                     <table className="min-w-full table-auto border-collapse text-sm text-left">
