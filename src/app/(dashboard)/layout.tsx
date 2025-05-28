@@ -9,14 +9,15 @@ import {
 
 import Link from 'next/link';
 import {
-    BriefcaseBusiness, ChevronRight,
+    Bell,
+    BriefcaseBusiness, ChevronRight, Compass,
     Home,
-    LineChart,
+    LineChart, Mail, MessageCircle,
     Package,
     Package2,
     PanelLeft,
     Settings,
-    ShoppingCart,
+    ShoppingCart, Target, TrendingUp, UserPlus, UserRound, UserRoundPen,
     Users2
 } from 'lucide-react';
 
@@ -36,11 +37,12 @@ import {
     TooltipTrigger
 } from '@/components/ui/tooltip';
 // import { Analytics } from '@vercel/analytics/react';
-import { User } from './user';
+import { User } from './candidates/user';
 // import { VercelLogo } from '@/components/icons';
-import Providers from './providers';
-import { NavItem } from './nav-item';
-import { SearchInput } from './search';
+import Providers from './candidates/providers';
+import { NavItem } from './candidates/nav-item';
+import { SearchInput } from './candidates/search';
+import { BellNav } from './candidates/bell-nav';
 import {
     SidebarGroup,
     SidebarGroupLabel,
@@ -78,6 +80,7 @@ export default function DashboardLayout({
                         <MobileNav />
                         {/*<DashboardBreadcrumb />*/}
                         <SearchInput />
+                        <BellNav/>
                         <User />
                     </header>
                     <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
@@ -107,20 +110,35 @@ function DesktopNav() {
                 <NavItem href="/home" label="Home">
                     <Home className="h-5 w-5" />
                 </NavItem>
-
                 <NavItem href="/jobs" label="Jobs">
                     <BriefcaseBusiness className="h-5 w-5" />
                 </NavItem>
-
-                <NavItem href="/" label="Products">
-                    <Package className="h-5 w-5" />
-                </NavItem>
-                <NavItem href="/candidates" label="Customers">
+                <NavItem href="/candidates" label="Candidates">
                     <Users2 className="h-5 w-5" />
                 </NavItem>
-
+                <NavItem href="/invitations" label="Invitations">
+                    <Mail className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/recruiter-profile" label="Recruiter Profile">
+                    <UserPlus className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/profile" label="Candidate Profile">
+                    <UserRoundPen className="h-5 w-5" />
+                </NavItem>
                 <NavItem href="/analytics" label="Analytics">
                     <LineChart className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/chats" label="Chats">
+                    <MessageCircle className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/career-compas" label="Career Compas">
+                    <Compass className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/skill-matcher" label="Skill Matcher">
+                    <Target className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/growth-tracker" label="Growth Tracker">
+                    <TrendingUp className="h-5 w-5" />
                 </NavItem>
             </nav>
             <nav className="mt-auto flex flex-col items-center gap-4 px-2  sm:py-5">
@@ -136,16 +154,16 @@ function DesktopNav() {
                             <Link href="/settings">Profile</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings/account">Account</Link>
+                            <Link href="/src/app/settings/account">Account</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings/appearance">Appearance</Link>
+                            <Link href="/src/app/settings/appearance">Appearance</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings/notifications">Notifications</Link>
+                            <Link href="/src/app/settings/notifications">Notifications</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings/display">Display</Link>
+                            <Link href="/src/app/settings/display">Display</Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
