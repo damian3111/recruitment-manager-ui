@@ -42,7 +42,7 @@ export function ConfirmModal({
 
     console.log(user);
     const handleSend = () => {
-        toast.success('✅ Invitation sent!');
+        toast.success('✅ Application Sent!');
 
         // if (!user?.id) return;
         //
@@ -58,8 +58,7 @@ export function ConfirmModal({
             {
                 onSuccess: () => {
                     // setSentJobIds(prev => [...prev, jobId]);
-                    toast.success('✅ Invitation sent!');
-                    // refetch();
+                    toast.success('✅ Application Sent!')
                     onSuccess();
                 },
                 onError: () => toast.error('❌ Failed to send invitation.'),
