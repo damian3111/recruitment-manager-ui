@@ -1,5 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '../utils/api';
+import {JobFilter} from "@/lib/jobService";
+import toast from "react-hot-toast";
+import { useRouter } from 'next/navigation';
+
 export type CandidateType = {
     id: number;
     first_name: string;
@@ -20,7 +24,7 @@ export type CandidateType = {
     work_style: 'Remote' | 'Hybrid' | 'On-site';
     applied_date?: string;
     location?: string;
-    skills: string;
+    skills?: { name: string; proficiencyLevel?: string }[];
 };
 
 export type CandidateFilter = {
@@ -34,15 +38,17 @@ export type CandidateFilter = {
     education?: string;
     certifications?: string;
     projects?: string;
-    salary_expectation?: string;
+    salary_min?: number;
+    salary_max?: number;
     work_style?: 'Remote' | 'Hybrid' | 'On-site';
     applied_date_from?: string;
     applied_date_to?: string;
     location?: string;
-    skills?: string;
+    skills?: { name: string; proficiencyLevel?: string }[];
 };
 
 const API_URL = 'http://localhost:8080/candidates';
+const LOGOUT_URL = 'http://localhost:8080';
 
 export const useCandidates = () => {
     return useQuery<CandidateType[]>({
@@ -55,18 +61,45 @@ export const useCandidates = () => {
     });
 };
 
-export const useFilteredCandidates = (filter: CandidateFilter) => {
-    return useQuery<CandidateType[]>({
-        queryKey: ['candidates', filter],
-        queryFn: async () => {
-            const res = await axios.post(`${API_URL}/filter`, filter);
-            return res.data;
-        },
-        staleTime: 1000 * 60,
-        enabled: !!filter, // Optional: disables query if no filter provided
-    });
+// export const useFilteredCandidates = (filter: CandidateFilter) => {
+//     return useQuery<CandidateType[]>({
+//         queryKey: ['candidates', filter],
+//         queryFn: async () => {
+//             const res = await axios.post(`${API_URL}/filter`, filter);
+//             return res.data;
+//         },
+//         staleTime: 1000 * 60,
+//         enabled: !!filter, // Optional: disables query if no filter provided
+//     });
+// };
+
+type UseFilteredCandidatesParams = {
+    filter: CandidateFilter;
+    page: number;
+    limit: number;
 };
 
+export const useFilteredCandidates = (filter: CandidateFilter, page = 0, size = 10) => {
+    return useQuery({
+        queryKey: ['candidates', filter, page, size],
+        queryFn: async () => {
+            const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
+            return res.data; // Expected: { data: CandidateType[], total: number, ... }
+        },
+        staleTime: 1000 * 60,
+        enabled: !!filter,
+    });
+};
+// export const useFilteredJobs = (filter: JobFilter, page = 0, size = 10) => {
+//     return useQuery({
+//         queryKey: ['filteredJobs', filter, page, size],
+//         queryFn: async () => {
+//             const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
+//             return res.data; // zakładamy Page<Job>
+//         },
+//         // keepPreviousData: true,
+//     });
+// };
 export const useCandidate = (id: number) => {
     return useQuery<CandidateType>({
         queryKey: ['candidate', id],
@@ -89,6 +122,25 @@ export const useCandidateByEmail = (email: string) => {
             return res.data;
         },
         enabled: !!email,
+    });
+};
+
+export const useLogout = () => {
+    const queryClient = useQueryClient();
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: async () => {
+            await axios.post(`${LOGOUT_URL}/logout2`);
+        },
+        onSuccess: () => {
+            toast.success("Logout successful!");
+            queryClient.clear();
+            window.location.href = "/login";
+        },
+        onError: (error) => {
+            console.error('Logout failed:', error);
+        },
     });
 };
 

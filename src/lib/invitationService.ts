@@ -64,6 +64,19 @@ export const useInvitesByRecruiter = (recruiterId: number) => {
     });
 };
 
+export const useUserRelatedInvitations = (userId: number, email: string) => {
+    return useQuery<InvitationType[]>({
+        queryKey: ['invites', 'user-related', userId],
+        queryFn: async () => {
+            const res = await axios.get(`${API_URL}/user-related`, {
+                params: { userId, email },
+            });
+            return res.data;
+        },
+        enabled: !!userId && !!email,
+    });
+};
+
 export const useSendInvite = () => {
     const queryClient = useQueryClient();
 
@@ -80,12 +93,25 @@ export const useSendInvite = () => {
         },
     });
 };
-export const useInvitesByJobUser = (userId: number) => {
+export const useInvitesByJobUser = (userId: number, email: string) => {
     return useQuery<InvitationType[]>({
         queryKey: ['invites', 'job-user', userId],
         queryFn: async () => {
             const res = await axios.get(`${API_URL}/received-by-recruiter`, {
-                params: { userId },
+                params: { userId, email},
+            });
+            return res.data;
+        },
+        enabled: !!userId,
+    });
+};
+
+export const useInvitationsReceivedByRecruited = (userId: number, email: string) => {
+    return useQuery<InvitationType[]>({
+        queryKey: ['invites', 'recruited', userId],
+        queryFn: async () => {
+            const res = await axios.get(`${API_URL}/received-by-recruited`, {
+                params: { userId, email},
             });
             return res.data;
         },
