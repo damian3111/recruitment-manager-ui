@@ -28,6 +28,9 @@ import {
     useUpdateInviteStatus, useUserRelatedInvitations
 } from "@/lib/invitationService";
 import {useCurrentUser} from "@/lib/userService";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+
 
 export default function JobsPage() {
     const [filters, setFilters] = useState<JobFilter>({});
@@ -53,6 +56,10 @@ export default function JobsPage() {
     const [page, setPage] = useState(0);
     const pageSize = 10;
     const { data: jobs, isLoading, isError, error } = useFilteredJobs(debouncedFilters, page, pageSize);
+    const router = useRouter();
+
+    console.log("user?.userRole");
+    console.log(user?.userRole);
 
     useEffect(() => {
         if (invites) {
@@ -123,7 +130,6 @@ export default function JobsPage() {
     };
 
     const handleAcceptInvitation = (jobId: number) => {
-        console.log("(((((");
 
         const invite = invites?.find(inv =>
             inv.status === 'sent' &&
@@ -173,7 +179,7 @@ export default function JobsPage() {
             {
                 onSuccess: () => {
                     setSentJobIds(prev => [...prev, selectedJobId ?? -1]);
-                    toast.success('✅ Invitation sent!');
+                    toast.success('✅ Application Sent!')
                     refetch();
                     setShowConfirm(false);
                 },
@@ -183,102 +189,179 @@ export default function JobsPage() {
     };
 
     return (
-        <div className="flex gap-8">
+        <div className="flex gap-8 p-6 max-w-full ml-2">
             {/* Filters */}
-            <div className="w-1/4">
+            <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="w-1/4 bg-white rounded-2xl shadow-xl p-10 border border-gray-200 sticky top-6"
+            >
                 <JobFilters
                     filters={filters}
                     onChange={setFilters}
                     focusedField={focusedField}
                     setFocusedField={setFocusedField}
                 />
-            </div>
+            </motion.div>
 
             {/* Job Cards */}
-            <div className="w-3/4 space-y-4">
-                {jobs?.content?.map((job: JobType) => (
-                    <Card
-                        key={job.id}
-                        className="w-full p-4 rounded-2xl shadow-md border border-gray-200 bg-white hover:shadow-lg transition-shadow duration-300"
+            <div className="w-[65rem] mx-20 space-y-6">
+                {user?.userRole === 'recruiter' && <div className="flex justify-end">
+                    <Button
+                        onClick={() => router.push('/profile-jobs')}
+                        className="text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                     >
-                        <div className="flex justify-between items-start">
-                            <CardContent className="space-y-1">
-                                <h2 className="text-xl font-bold text-gray-800">{job.title}</h2>
-                                <p className="text-sm text-gray-600">{job.description}</p>
-                                <p className="text-sm font-medium text-gray-700">
-                                    Salary: <span className="text-green-600">{job.salary} PLN</span>
-                                </p>
-                                    <p className="text-xs text-gray-400">
-                                    Created at: {new Date(job.createdAt).toLocaleString()}
-                                </p>
-                            </CardContent>
-                            {user?.userRole !== 'recruiter' && (
-                                <div className="flex items-center gap-2">
-                                    {sentJobIds?.includes(job.id) ? (
-                                        <Button size="sm" onClick={() => handleCancel(job)}>
-                                            Sent
-                                        </Button>
-                                    ) : acceptedJobIds?.includes(job.id) ? (
-                                        <div>
-                                            <Button size="sm" onClick={() => handleCancel(job)}>
-                                                Invitation Accepted
-                                            </Button>
-                                            <Button
-                                                onClick={() => handleRemoveRelation(job.id)}
-                                                className={`px-3 py-1 rounded text-sm transition bg-red-500 text-white hover:bg-red-600`}
+                        Create Job
+                    </Button>
+                </div>}
+
+                <AnimatePresence>
+                    {jobs?.content?.map((job) => (
+                        <motion.div
+                            key={job.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Card
+                                className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[10.5rem]"
+                            >
+                                <div className="flex gap-3 items-center">
+                                    {/* Left Column: Title, Company, Location */}
+                                    <div className="flex-1 space-y-4">
+                                        <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                                            {job.title || 'N/A'}
+                                        </h2>
+                                        <p className="text-base font-medium text-gray-700">
+                                            {job.company || 'N/A'}
+                                        </p>
+                                        <p className="text-base text-gray-600">
+                                            {job.location || 'N/A'}
+                                        </p>
+                                    </div>
+                                    {/* Center Column: Salary, Employment Type, Experience Level */}
+                                    <div className="flex-1 space-y-4">
+                                        <p className="text-base font-medium text-gray-700">
+                                            Salary:{' '}
+                                            <span className="text-green-600 font-semibold">
+                        {job.salary_min && job.salary_max
+                            ? `${job.salary_min} - ${job.salary_max} ${job.currency || ''}`
+                            : 'N/A'}
+                      </span>
+                                        </p>
+                                        <span className="inline-block px-3 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-full">
+                      {job.employment_mode || 'N/A'}
+                    </span><br/>
+                                        <span className="inline-block px-3 py-1.5 text-sm font-medium text-purple-700 bg-purple-100 rounded-full">
+                      {job.experience_level || 'N/A'}
+                    </span>
+
+                                    </div>
+                                    <div className="h-28 flex items-center justify-center">
+                                        <div className="flex items-center gap-2">
+                                        {user?.userRole !== 'recruiter' && (
+                                            <>
+                                                {sentJobIds?.includes(job.id) ? (
+                                                    <Button
+                                                        onClick={() => handleCancel(job)}
+                                                        className="ext-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                    >
+                                                        Submitted
+                                                    </Button>
+                                                ) : acceptedJobIds?.includes(job.id) ? (
+                                                    <div className="flex flex-col gap-2">
+                                                        <Button
+                                                            onClick={() => handleCancel(job)}
+                                                            // className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
+                                                            className="ext-base cursor-default bg-gray-500 text-white rounded-lg hover:bg-gray-500 transition-colors duration-200"
+
+                                                        >
+                                                            Invitation Accepted
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => handleRemoveRelation(job.id)}
+                                                            // className="px-3 py-1.5 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                            className="ext-base bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+
+                                                        >
+                                                            Remove Relation
+                                                        </Button>
+                                                    </div>
+                                                ) : receivedJobIds?.includes(job.id) ? (
+                                                    <Button
+                                                        size="sm"
+                                                        onClick={() => handleAcceptInvitation(job.id)}
+                                                        className="px-3 py-1.5 text-sm bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                                                    >
+                                                        Accept Invitation
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        onClick={() => handleSendInvitationClick(job)}
+                                                        className="ext-base bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
+                                                    >
+                                                        Apply
+                                                    </Button>
+                                                )}
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={() => toggleBookmark(job.id)}
+                                                >
+                                                    <Bookmark
+                                                        className="h-6 w-6 transition-colors duration-300"
+                                                        stroke={bookmarkedJobIds.includes(job.id) ? '#FFD700' : '#1F2937'}
+                                                        fill={bookmarkedJobIds.includes(job.id) ? '#FFD700' : 'none'}
+                                                    />
+                                                </motion.button>
+                                            </>
+                                        )}
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    className="p-1 text-gray-500 hover:text-gray-800 transition-colors duration-200"
+                                                >
+                                                    <MoreVertical className="h-5 w-5" />
+                                                </motion.button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent
+                                                align="end"
+                                                className="bg-white shadow-lg rounded-lg border border-gray-200"
                                             >
-                                                Remove Relation
-                                            </Button>
-                                        </div>
-                                        ) : receivedJobIds?.includes(job.id) ? (
-                                            <Button size="sm" onClick={() => handleAcceptInvitation(job.id)}>
-                                                Accept Invitation
-                                            </Button>
-                                        ) : (
-                                        <Button size="sm" onClick={() => handleSendInvitationClick(job)}>
-                                            I'm Interested
-                                        </Button>
-                                    )}
-                                    <button onClick={() => toggleBookmark(job.id)}>
-                                        <Bookmark
-                                            className="h-6 w-6 transition-colors duration-300"
-                                            stroke={bookmarkedJobIds.includes(job.id) ? "gold" : "black"}
-                                            fill={bookmarkedJobIds.includes(job.id) ? "gold" : "none"}
-                                        />
-                                    </button>
+                                                <Link href={`/jobs/${job.id}`}>
+                                                    <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                                                        View Details
+                                                    </DropdownMenuItem>
+                                                </Link>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </div>
+                                    </div>
                                 </div>
-                            )}
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <button className="p-2 text-gray-500 hover:text-gray-800">
-                                        <MoreVertical className="h-5 w-5" />
-                                    </button>
-                                </DropdownMenuTrigger>
-
-                                <DropdownMenuContent align="end">
-                                    <Link href={`/jobs/${job.id}`}>
-                                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                                    </Link>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-
-                    </Card>
-                ))}
+                            </Card>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
                 {jobs && (
-                    <div className="flex justify-center gap-4 mt-6">
+                    <div className="flex justify-center gap-4 mt-8">
                         <Button
-                            onClick={() => setPage(prev => Math.max(prev - 1, 0))}
+                            onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
                             disabled={page === 0}
+                            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors duration-200 disabled:opacity-50"
                         >
                             Previous
                         </Button>
-                        <span className="flex items-center px-2">
-      Page {page + 1} of {jobs.totalPages}
-    </span>
+                        <span className="flex items-center px-4 text-gray-700 font-medium">
+              Page {page + 1} of {jobs.totalPages}
+            </span>
                         <Button
-                            onClick={() => setPage(prev => Math.min(prev + 1, jobs.totalPages - 1))}
+                            onClick={() => setPage((prev) => Math.min(prev + 1, jobs.totalPages - 1))}
                             disabled={page >= jobs.totalPages - 1}
+                            className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors duration-200 disabled:opacity-50"
                         >
                             Next
                         </Button>
@@ -288,8 +371,10 @@ export default function JobsPage() {
                     open={showConfirm}
                     onCancel={() => setShowConfirm(false)}
                     onConfirm={confirmAction}
+                    description={"Do you really want to apply for this job?"}
                 />
             </div>
         </div>
     );
+
 }
