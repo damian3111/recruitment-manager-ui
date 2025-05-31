@@ -36,9 +36,30 @@ interface NavGroup {
 }
 
 interface SidebarData {
-    user: User
-    teams: Team[]
-    navGroups: NavGroup[]
+    user: {
+        name: string;
+        email: string;
+        avatar: string;
+    };
+    teams: {
+        name: string;
+        logo: any;
+        plan: string;
+    }[];
+    navGroups: {
+        title: string;
+        items: {
+            title: string;
+            url?: string;
+            icon?: any;
+            badge?: string;
+            items?: {
+                title: string;
+                url?: string;
+                icon?: any;
+            }[];
+        }[];
+    }[];
 }
 
 export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink }
