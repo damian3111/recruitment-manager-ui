@@ -31,8 +31,9 @@ import {
 } from "@/lib/invitationService";
 import {Badge} from "@/components/ui/badge";
 import toast from "react-hot-toast";
-import UnderConstructionPage from "@/components/UnderConstructionPage";
+import { AnimatePresence } from 'framer-motion';
 import {Wrench} from "lucide-react";
+import UnderConstructionPage from "@/components/UnderConstructionPage";
 
 export default function Dashboard() {
     const { data: user } = useCurrentUser()
@@ -132,328 +133,388 @@ export default function Dashboard() {
     };
 
     return (
-        <>
-            {/* ===== Top Heading ===== */}
-            {/*<Header>*/}
-            {/*    <TopNav links={topNav} />*/}
-            {/*    <div className='ml-auto flex items-center space-x-4'>*/}
-            {/*        <Search />*/}
-            {/*        <ThemeSwitch />*/}
-            {/*        <ProfileDropdown />*/}
-            {/*    </div>*/}
-            {/*</Header>*/}
-
-            {/* ===== Main ===== */}
-            <Main className="w-full min-h-screen px-4 sm:px-6 lg:px-8 max-w-none">
-                <div className='mb-2 flex items-center justify-between space-y-2'>
-                    <h1 className='text-2xl font-bold tracking-tight'>Invitations</h1>
-                    <div className='flex h-10 items-center space-x-2'>
-                    </div>
-                </div>
-                <Tabs
-                    orientation='vertical'
-                    defaultValue='sent'
-                    className='space-y-4'
-                >
-                    <div className='w-full overflow-x-auto pb-2'>
-                        <TabsList>
-                            <TabsTrigger value='sent'>
-                                Sent
+        <div className="flex gap-8 p-6 max-w-full mx-auto">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="w-full space-y-6"
+            >
+                <h1 className="text-2xl text-center font-bold tracking-tight text-gray-900">Invitations</h1>
+                <Tabs defaultValue="sent" className="space-y-4">
+                    <TabsList className="flex gap-2 bg-transparent">
+                        {['sent', 'received', 'accepted', 'favourite'].map((tab) => (
+                            <TabsTrigger
+                                key={tab}
+                                value={tab}
+                                className="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 data-[state=active]:bg-teal-600 data-[state=active]:text-white data-[state=inactive]:bg-gray-100 data-[state=inactive]:text-gray-700 hover:bg-teal-500 hover:text-white"
+                            >
+                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
                             </TabsTrigger>
-                            <TabsTrigger value='received'>
-                                Received
-                            </TabsTrigger>
-                            <TabsTrigger value='accepted'>
-                                Accepted
-                            </TabsTrigger>
-                            <TabsTrigger value='favourite'>
-                                Favourite
-                            </TabsTrigger>
-                        </TabsList>
-                    </div>
-                    <TabsContent value='sent' className='space-y-4'>
-                        <div className="space-y-4">
-                            <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations</h2>
+                        ))}
+                    </TabsList>
 
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full table-auto border-collapse text-sm text-left">
-                                        <thead>
-                                        <tr className="bg-gray-100 text-gray-700 font-medium">
-                                            <th className="px-4 py-2 border-b">Job</th>
-                                            <th className="px-4 py-2 border-b">Candidate</th>
-                                            <th className="px-4 py-2 border-b">Status</th>
-                                            <th className="px-4 py-2 border-b">Sent At</th>
-                                            <th className="px-4 py-2 border-b">Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {invitesByRecruiter?.filter(invite => invite.status != "accepted").map((invite) => {
-                                            const job = getJob(invite.job_id)
-                                            const candidate = getCandidate(invite.candidate_id)
-                                            return (
-                                                <tr key={invite.id} className="hover:bg-gray-50 transition">
-                                                    <td className="px-4 py-3 border-b">
-                                                        {job ? (
-                                                            <>
-                                                                <div className="font-medium">{job.title}</div>
-                                                                <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-gray-400">Unknown Job</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b">
-                                                        {candidate ? (
-                                                            <>
-                                                                <div className="font-medium">{candidate.first_name} {candidate.last_name}</div>
-                                                                <div className="text-xs text-gray-500">{candidate.email}</div>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-gray-400">Unknown Candidate</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b">
-                                                        <Badge
-                                                            variant={
-                                                                invite.status === "sent"
-                                                                    ? "secondary"
-                                                                    : invite.status === "accepted"
-                                                                        ? "success"
-                                                                        : "destructive"
-                                                            }
-                                                        >
-                                                            {invite.status}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b text-gray-600">
-                                                        {new Date(invite.created_at).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b text-blue-600 space-x-2">
-                                                        {job && (
-                                                            <Link href={`/jobs/${job.id}`} className="hover:underline">
-                                                                View Job
-                                                            </Link>
-                                                        )}
-                                                        {candidate && (
-                                                            <Link href={`/candidates/${candidate.id}`} className="hover:underline">
-                                                                View Candidate
-                                                            </Link>
-                                                        )}
-                                                        {candidate && job &&(
-                                                        <button
-                                                            onClick={() => handleCancel(job.id, candidate.id)}
-                                                            className={`px-3 py-1 rounded text-sm transition bg-red-500 text-white hover:bg-red-600`}
-                                                        >
-                                                            Cancel Invitation
-                                                        </button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </Card>
-                        </div>                    </TabsContent>
-                    <TabsContent value='received' className='space-y-4'>
-                        <div className="space-y-4">
-                            <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Received)</h2>
-
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full table-auto border-collapse text-sm text-left">
-                                        <thead>
-                                        <tr className="bg-gray-100 text-gray-700 font-medium">
-                                            <th className="px-4 py-2 border-b">Job</th>
-                                            <th className="px-4 py-2 border-b">Candidate</th>
-                                            <th className="px-4 py-2 border-b">Status</th>
-                                            <th className="px-4 py-2 border-b">Sent At</th>
-                                            <th className="px-4 py-2 border-b">Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {
-                                            invitesReceivedByRecruited?.filter(invite => invite.status != "accepted").map((invite) => {
-                                            const job = getJob(invite.job_id)
-                                            const candidate = getCandidate(invite.candidate_id)
-
-                                            return (
-                                                <tr key={invite.id} className="hover:bg-gray-50 transition">
-                                                    <td className="px-4 py-3 border-b">
-                                                        {job ? (
-                                                            <>
-                                                                <div className="font-medium">{job.title}</div>
-                                                                <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-gray-400">Unknown Job</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b">
-                                                        {candidate ? (
-                                                            <>
-                                                                <div className="font-medium">{candidate.first_name} {candidate.last_name}</div>
-                                                                <div className="text-xs text-gray-500">{candidate.email}</div>
-                                                            </>
-                                                        ) : (
-                                                            <span className="text-gray-400">Unknown Candidate</span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b">
-                                                        <Badge
-                                                            variant={
-                                                                invite.status === "sent"
-                                                                    ? "secondary"
-                                                                    : invite.status === "accepted"
-                                                                        ? "success"
-                                                                        : "destructive"
-                                                            }
-                                                        >
-                                                            {invite.status}
-                                                        </Badge>
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b text-gray-600">
-                                                        {new Date(invite.created_at).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-4 py-3 border-b text-blue-600 space-x-2">
-                                                        {job && (
-                                                            <Link href={`/jobs/${job.id}`} className="hover:underline">
-                                                                View Job
-                                                            </Link>
-                                                        )}
-                                                        {candidate && (
-                                                            <Link href={`/candidates/${candidate.id}`} className="hover:underline">
-                                                                View Candidate
-                                                            </Link>
-                                                        )}
-                                                        {candidate && job && (
-                                                            <div>
-                                                                <button
-                                                                    onClick={() => handleAcceptInvitation(job.id, candidate.id)}
-                                                                    className={`px-3 py-1 rounded text-sm transition bg-red-500 text-white hover:bg-red-600`}
-                                                                >
-                                                                    Accept Invitation
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleCancelAnalytics(job.id, candidate.id)}
-                                                                    className={`px-3 py-1 rounded text-sm transition bg-red-500 text-white hover:bg-red-600`}
-                                                                >
-                                                                    Cancel Invitation
-                                                                </button>
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </Card>
-                        </div>
-                    </TabsContent>
-                    <TabsContent value='accepted' className='space-y-4'>
-                        <div className="space-y-4">
-                            <Card className="p-6 rounded-2xl shadow-md border border-gray-200 bg-white">
-                                <h2 className="text-2xl font-semibold mb-6 text-gray-800">Your Invitations (Accepted)</h2>
-
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full table-auto border-collapse text-sm text-left">
-                                        <thead>
-                                        <tr className="bg-gray-100 text-gray-700 font-medium">
-                                            <th className="px-4 py-2 border-b">Job</th>
-                                            <th className="px-4 py-2 border-b">Candidate</th>
-                                            <th className="px-4 py-2 border-b">Status</th>
-                                            <th className="px-4 py-2 border-b">Sent At</th>
-                                            <th className="px-4 py-2 border-b">Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {
-                                            invitesByJobUser?.filter(invite => invite.status == "accepted").map((invite) => {
-                                                const job = getJob(invite.job_id)
-                                                const candidate = getCandidate(invite.candidate_id)
-
+                    {/* Sent Invitations */}
+                    <TabsContent value="sent" className="space-y-4">
+                        <AnimatePresence>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Card className="p-8 rounded-2xl shadow-lg border border-gray-200 bg-white">
+                                    <h2 className="text-xl font-bold text-gray-900 mb-6">Your Invitations</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full table-auto border-collapse text-sm text-left">
+                                            <thead>
+                                            <tr className="bg-gray-100 text-gray-700 font-medium">
+                                                <th className="px-6 py-3 border-b">Job</th>
+                                                <th className="px-6 py-3 border-b">Candidate</th>
+                                                <th className="px-6 py-3 border-b">Status</th>
+                                                <th className="px-6 py-3 border-b">Sent At</th>
+                                                <th className="px-6 py-3 border-b">Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {invitesByRecruiter?.filter((invite) => invite.status !== 'accepted').map((invite) => {
+                                                const job = getJob(invite.job_id);
+                                                const candidate = getCandidate(invite.candidate_id);
                                                 return (
-                                                    <tr key={invite.id} className="hover:bg-gray-50 transition">
-                                                        <td className="px-4 py-3 border-b">
+                                                    <motion.tr
+                                                        key={invite.id}
+                                                        className="hover:bg-gray-50 transition"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <td className="px-6 py-4 border-b">
                                                             {job ? (
                                                                 <>
-                                                                    <div className="font-medium">{job.title}</div>
+                                                                    <div className="font-medium text-gray-900">{job.title}</div>
                                                                     <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
                                                                 </>
                                                             ) : (
                                                                 <span className="text-gray-400">Unknown Job</span>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 border-b">
+                                                        <td className="px-6 py-4 border-b">
                                                             {candidate ? (
                                                                 <>
-                                                                    <div className="font-medium">{candidate.first_name} {candidate.last_name}</div>
+                                                                    <div className="font-medium text-gray-900">
+                                                                        {candidate.first_name} {candidate.last_name}
+                                                                    </div>
                                                                     <div className="text-xs text-gray-500">{candidate.email}</div>
                                                                 </>
                                                             ) : (
                                                                 <span className="text-gray-400">Unknown Candidate</span>
                                                             )}
                                                         </td>
-                                                        <td className="px-4 py-3 border-b">
+                                                        <td className="px-6 py-4 border-b">
                                                             <Badge
                                                                 variant={
-                                                                    invite.status === "sent"
-                                                                        ? "secondary"
-                                                                        : invite.status === "accepted"
-                                                                            ? "success"
-                                                                            : "destructive"
+                                                                    invite.status === 'sent'
+                                                                        ? 'secondary'
+                                                                        : invite.status === 'accepted'
+                                                                            ? 'success'
+                                                                            : 'destructive'
                                                                 }
+                                                                className="px-3 py-1 text-sm"
                                                             >
                                                                 {invite.status}
                                                             </Badge>
                                                         </td>
-                                                        <td className="px-4 py-3 border-b text-gray-600">
+                                                        <td className="px-6 py-4 border-b text-gray-600">
                                                             {new Date(invite.created_at).toLocaleDateString()}
                                                         </td>
-                                                        <td className="px-4 py-3 border-b text-blue-600 space-x-2">
+                                                        <td className="px-6 py-4 border-b flex gap-2">
                                                             {job && (
-                                                                <Link href={`/jobs/${job.id}`} className="hover:underline">
+                                                                <Link
+                                                                    href={`/jobs/${job.id}`}
+                                                                    className="text-teal-600 hover:underline text-sm"
+                                                                >
                                                                     View Job
                                                                 </Link>
                                                             )}
                                                             {candidate && (
-                                                                <Link href={`/candidates/${candidate.id}`} className="hover:underline">
+                                                                <Link
+                                                                    href={`/candidates/${candidate.id}`}
+                                                                    className="text-teal-600 hover:underline text-sm"
+                                                                >
                                                                     View Candidate
                                                                 </Link>
                                                             )}
                                                             {candidate && job && (
-                                                                <div>
-                                                                    <button
-                                                                        onClick={() => handleRemoveRelation(invite.id)}
-                                                                        className={`px-3 py-1 rounded text-sm transition bg-red-500 text-white hover:bg-red-600`}
+                                                                <Button
+                                                                    onClick={() => handleCancel(job.id, candidate.id)}
+                                                                    className="text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                                >
+                                                                    Cancel Invitation
+                                                                </Button>
+                                                            )}
+                                                        </td>
+                                                    </motion.tr>
+                                                );
+                                            })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </Card>
+                            </motion.div>
+                        </AnimatePresence>
+                    </TabsContent>
+
+                    {/* Received Invitations */}
+                    <TabsContent value="received" className="space-y-4">
+                        <AnimatePresence>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Card className="p-8 rounded-2xl shadow-lg border border-gray-200 bg-white">
+                                    <h2 className="text-xl font-bold text-gray-900 mb-6">Your Invitations (Received)</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full table-auto border-collapse text-sm text-left">
+                                            <thead>
+                                            <tr className="bg-gray-100 text-gray-700 font-medium">
+                                                <th className="px-6 py-3 border-b">Job</th>
+                                                <th className="px-6 py-3 border-b">Candidate</th>
+                                                <th className="px-6 py-3 border-b">Status</th>
+                                                <th className="px-6 py-3 border-b">Sent At</th>
+                                                <th className="px-6 py-3 border-b">Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {invitesReceivedByRecruited?.filter((invite) => invite.status !== 'accepted').map((invite) => {
+                                                const job = getJob(invite.job_id);
+                                                const candidate = getCandidate(invite.candidate_id);
+                                                return (
+                                                    <motion.tr
+                                                        key={invite.id}
+                                                        className="hover:bg-gray-50 transition"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <td className="px-6 py-4 border-b">
+                                                            {job ? (
+                                                                <>
+                                                                    <div className="font-medium text-gray-900">{job.title}</div>
+                                                                    <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-gray-400">Unknown Job</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b">
+                                                            {candidate ? (
+                                                                <>
+                                                                    <div className="font-medium text-gray-900">
+                                                                        {candidate.first_name} {candidate.last_name}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500">{candidate.email}</div>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-gray-400">Unknown Candidate</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b">
+                                                            <Badge
+                                                                variant={
+                                                                    invite.status === 'sent'
+                                                                        ? 'secondary'
+                                                                        : invite.status === 'accepted'
+                                                                            ? 'success'
+                                                                            : 'destructive'
+                                                                }
+                                                                className="px-3 py-1 text-sm"
+                                                            >
+                                                                {invite.status}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b text-gray-600">
+                                                            {new Date(invite.created_at).toLocaleDateString()}
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b flex gap-2">
+                                                            {job && (
+                                                                <Link
+                                                                    href={`/jobs/${job.id}`}
+                                                                    className="text-teal-600 hover:underline text-sm"
+                                                                >
+                                                                    View Job
+                                                                </Link>
+                                                            )}
+                                                            {candidate && (
+                                                                <Link
+                                                                    href={`/candidates/${candidate.id}`}
+                                                                    className="text-teal-600 hover:underline text-sm"
+                                                                >
+                                                                    View Candidate
+                                                                </Link>
+                                                            )}
+                                                            {candidate && job && (
+                                                                <div className="flex gap-2">
+                                                                    <Button
+                                                                        onClick={() => handleAcceptInvitation(job.id, candidate.id)}
+                                                                        className="text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
                                                                     >
-                                                                        Remove Relation
-                                                                    </button>
+                                                                        Accept Invitation
+                                                                    </Button>
+                                                                    <Button
+                                                                        onClick={() => handleCancelAnalytics(job.id, candidate.id)}
+                                                                        className="text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                                    >
+                                                                        Cancel Invitation
+                                                                    </Button>
                                                                 </div>
                                                             )}
                                                         </td>
-                                                    </tr>
-                                                )
+                                                    </motion.tr>
+                                                );
                                             })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </Card>
-                        </div>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </Card>
+                            </motion.div>
+                        </AnimatePresence>
                     </TabsContent>
-                    <TabsContent value='favourite' className='space-y-4'>
-                        <div className="space-y-4">
+
+                    {/* Accepted Invitations */}
+                    <TabsContent value="accepted" className="space-y-4">
+                        <AnimatePresence>
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Card className="p-8 rounded-2xl shadow-lg border border-gray-200 bg-white">
+                                    <h2 className="text-xl font-bold text-gray-900 mb-6">Your Invitations (Accepted)</h2>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full table-auto border-collapse text-sm text-left">
+                                            <thead>
+                                            <tr className="bg-gray-100 text-gray-700 font-medium">
+                                                <th className="px-6 py-3 border-b">Job</th>
+                                                <th className="px-6 py-3 border-b">Candidate</th>
+                                                <th className="px-6 py-3 border-b">Status</th>
+                                                <th className="px-6 py-3 border-b">Sent At</th>
+                                                <th className="px-6 py-3 border-b">Actions</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {invitesByJobUser?.filter((invite) => invite.status === 'accepted').map((invite) => {
+                                                const job = getJob(invite.job_id);
+                                                const candidate = getCandidate(invite.candidate_id);
+                                                return (
+                                                    <motion.tr
+                                                        key={invite.id}
+                                                        className="hover:bg-gray-50 transition"
+                                                        initial={{ opacity: 0 }}
+                                                        animate={{ opacity: 1 }}
+                                                        transition={{ duration: 0.2 }}
+                                                    >
+                                                        <td className="px-6 py-4 border-b">
+                                                            {job ? (
+                                                                <>
+                                                                    <div className="font-medium text-gray-900">{job.title}</div>
+                                                                    <div className="text-xs text-gray-500">{job.company} • {job.location}</div>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-gray-400">Unknown Job</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b">
+                                                            {candidate ? (
+                                                                <>
+                                                                    <div className="font-medium text-gray-900">
+                                                                        {candidate.first_name} {candidate.last_name}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500">{candidate.email}</div>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-gray-400">Unknown Candidate</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b">
+                                                            <Badge
+                                                                variant={
+                                                                    invite.status === 'sent'
+                                                                        ? 'secondary'
+                                                                        : invite.status === 'accepted'
+                                                                            ? 'success'
+                                                                            : 'destructive'
+                                                                }
+                                                                className="px-3 py-1 text-sm"
+                                                            >
+                                                                {invite.status}
+                                                            </Badge>
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b text-gray-600">
+                                                            {new Date(invite.created_at).toLocaleDateString()}
+                                                        </td>
+                                                        <td className="px-6 py-4 border-b flex gap-2">
+                                                            {job && (
+                                                                <Link
+                                                                    href={`/jobs/${job.id}`}
+                                                                    className="text-teal-600 hover:underline text-sm"
+                                                                >
+                                                                    View Job
+                                                                </Link>
+                                                            )}
+                                                            {candidate && (
+                                                                <Link
+                                                                    href={`/candidates/${candidate.id}`}
+                                                                    className="text-teal-600 hover:underline text-sm"
+                                                                >
+                                                                    View Candidate
+                                                                </Link>
+                                                            )}
+                                                            {candidate && job && (
+                                                                <Button
+                                                                    onClick={() => handleRemoveRelation(invite.id)}
+                                                                    className="text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                                >
+                                                                    Remove Relation
+                                                                </Button>
+                                                            )}
+                                                        </td>
+                                                    </motion.tr>
+                                                );
+                                            })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </Card>
+                            </motion.div>
+                        </AnimatePresence>
+                    </TabsContent>
+
+                    {/* Favourite Invitations */}
+                    <TabsContent value="favourite" className="space-y-4">
+                        {/*<AnimatePresence>*/}
+                        {/*    <motion.div*/}
+                        {/*        initial={{ opacity: 0, y: 20 }}*/}
+                        {/*        animate={{ opacity: 1, y: 0 }}*/}
+                        {/*        exit={{ opacity: 0, y: -20 }}*/}
+                        {/*        transition={{ duration: 0.3 }}*/}
+                        {/*    >*/}
+                        {/*        <Card className="p-8 rounded-2xl shadow-lg border border-gray-200 bg-white">*/}
+                        {/*            <h2 className="text-xl font-bold text-gray-900 mb-6">Favourite Invitations</h2>*/}
+                        {/*            <p className="text-gray-600">This feature is under construction. Check back soon!</p>*/}
+                        {/*        </Card>*/}
+                        {/*    </motion.div>*/}
+                        {/*</AnimatePresence>*/}
+                        <div className="">
                             <UnderConstructionPage/>
                         </div>
                     </TabsContent>
                 </Tabs>
-            </Main>
-        </>
-    )
+            </motion.div>
+        </div>
+    );
 }
 
 const topNav = [
