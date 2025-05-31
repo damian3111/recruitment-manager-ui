@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { JobType } from '@/lib/jobService';
 import {
-    useDeleteInvite,
+    useDeleteInvite, useInvites,
     useInvitesByCandidate,
     useInvitesByCandidateAndRecruiter,
     useSendInvite,
-    useUpdateInviteStatus
+    useUpdateInviteStatus, useUserRelatedInvitations
 } from '@/lib/invitationService';
 import { useCurrentUser } from '@/lib/userService';
 import toast from 'react-hot-toast';
@@ -24,18 +24,37 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
                                                            onCancel,
                                                        }) => {
     const [sentJobIds, setSentJobIds] = useState<number[]>([]);
+    const [acceptedJobIds, setAcceptedJobIds] = useState<number[]>([]);
+    const [receivedJobIds, setReceivedJobIds] = useState<number[]>([]);
     const { data: user } = useCurrentUser();
-    const { data: invites, refetch, isFetching } = useInvitesByCandidateAndRecruiter(candidateId, user?.id);
+    // const { data: invites, refetch, isFetching } = useInvitesByCandidateAndRecruiter(candidateId, user?.id);
+    // const { data: invites, refetch, isFetching } = useInvites();
+    const {data: invites, refetch, isFetching  } = useUserRelatedInvitations(user?.id, user?.email);
+
     const sendInvite = useSendInvite();
     const cancelInvite = useUpdateInviteStatus();
     const deleteInvite = useDeleteInvite();
+    const { mutate } = useUpdateInviteStatus();
 
     useEffect(() => {
         if (open && invites) {
+            console.log(invites);
+            console.log(user?.id);
+
             const sentIds = invites
-                .filter(invite => invite.status === 'sent')
+                .filter(invite => invite.status === 'sent' && invite.candidate_id == candidateId && invite.recruiter_id == user?.id)
                 .flatMap(invite => invite.job_id);
             setSentJobIds(sentIds);
+
+            const acceptedIds = invites
+                .filter(invite => invite.status === 'accepted' && invite.candidate_id == candidateId)
+                .flatMap(invite => invite.job_id);
+            setAcceptedJobIds(acceptedIds);
+
+            const receiverIds = invites
+                .filter(invite => invite.status === 'sent' && invite.candidate_id == candidateId && invite.recruiter_id != user?.id)
+                .flatMap(invite => invite.job_id);
+            setReceivedJobIds(receiverIds);
         }
     }, [open, invites]);
 
@@ -52,7 +71,7 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
             {
                 onSuccess: () => {
                     setSentJobIds(prev => [...prev, jobId]);
-                    toast.success('✅ Invitation sent!');
+                    toast.success('✅ Invitation Sent!')
                     refetch();
                 },
                 onError: () => toast.error('❌ Failed to send invitation.'),
@@ -73,7 +92,52 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
             onSuccess: () => {
                 setSentJobIds(prev => prev.filter(id => id !== jobId));
                 toast.success('✅ Invitation deleted!');
-                refetch(); // jeśli potrzebne
+                refetch();
+            },
+            onError: () => toast.error('❌ Failed to delete invitation.'),
+        });
+    };
+
+    const handleAcceptInvitation = (jobId: number) => {
+        console.log("(((((");
+
+        const invite = invites?.find(inv =>
+            inv.status === 'sent' &&
+            inv.job_id === jobId &&
+            inv.candidate_id === candidateId
+        );
+console.log("(((((");
+console.log(jobId);
+console.log(candidateId);
+        if (!invite) return;
+
+        mutate({
+            id: invite.id,
+            status: 'accepted',
+        }, {
+            onSuccess: () => {
+                toast.success('✅ Invitation accepted!');
+            },
+            onError: () => {
+                toast.error('❌ Failed to accept the invitation.');
+            },
+        });
+    };
+
+    const handleRemoveRelation = (jobId: number) => {
+        const invite = invites?.find(inv =>
+            inv.status === 'accepted' &&
+            inv.job_id === jobId &&
+            inv.candidate_id === candidateId
+        );
+
+        if (!invite) return;
+
+        deleteInvite.mutate(invite.id, {
+            onSuccess: () => {
+                // setSentJobIds(prev => prev.filter(id => id !== jobId));
+                toast.success('✅ Invitation deleted!');
+                // refetch(); // jeśli potrzebne
             },
             onError: () => toast.error('❌ Failed to delete invitation.'),
         });
@@ -90,22 +154,39 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
                 <div className="space-y-3">
                     {jobs.map((job) => {
                         const isSent = sentJobIds.includes(job.id);
+                        const isAccepted = acceptedJobIds.includes(job.id);
+                        const isReceived = receivedJobIds.includes(job.id);
+                        console.log("$$$");
+                        console.log(job.id);
+                        console.log(isSent);
+                        console.log(isAccepted);
+                        console.log(isReceived);
                         return (
                             <div key={job.id} className="flex items-center justify-between">
                                 <span className="text-gray-700">{job.title}</span>
                                 <button
-                                    onClick={() => isSent ? handleCancel(job.id) : handleSend(job.id)}
-                                    disabled={isFetching}
+                                    onClick={() => isSent ? handleCancel(job.id) : isReceived ? handleAcceptInvitation(job.id) : handleSend(job.id)}
+                                    disabled={isFetching || isAccepted}
                                     className={`px-3 py-1 rounded text-sm transition ${
-                                        isFetching ? 'bg-gray-500 text-white hover:bg-red-600' 
+                                        isFetching ? 'bg-gray-500 text-white' 
                                             :
                                         isSent
+                                            ? 'bg-red-500 text-white hover:bg-red-600' :
+                                        isAccepted 
+                                            ? 'bg-gray-500 text-white' : 
+                                        isReceived 
                                             ? 'bg-red-500 text-white hover:bg-red-600'
                                             : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                                 >
-                                    {isSent ? 'Cancel Invitation' : 'Send Invitation'}
+                                    {isSent ? 'Cancel Invitation' : isAccepted ? "Invitation Accepted" : isReceived ? "Accept Invitation" : 'Send Invitation'}
                                 </button>
+                                {isAccepted && <button
+                                    onClick={() => handleRemoveRelation(job.id)}
+                                    className={`px-3 py-1 rounded text-sm transition bg-blue-600 text-white hover:bg-blue-700`}
+                                >
+                                    Remove Relation
+                                </button>}
                             </div>
                         );
                     })}
