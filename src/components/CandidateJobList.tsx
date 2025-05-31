@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { JobType, useAllJobs } from '@/lib/jobService';
+import { JobType, useJobs } from '@/lib/jobService';
 import { useCurrentUser } from '@/lib/userService';
 import { useInvitesByCandidate, useSendInvite, useDeleteInvite } from '@/lib/invitationService';
 import toast from 'react-hot-toast';
@@ -10,7 +10,7 @@ import { Spinner } from '@/components/icons';
 
 const CandidateJobList = () => {
     const { data: user } = useCurrentUser();
-    const { data: jobs, isLoading } = useAllJobs();
+    const { data: jobs, isLoading } = useJobs();
     const { data: invites, refetch } = useInvitesByCandidate(user?.id);
     const sendInvite = useSendInvite();
     const deleteInvite = useDeleteInvite();
@@ -33,6 +33,7 @@ const CandidateJobList = () => {
             {
                 candidate_id: user.id,
                 job_id: jobId,
+                recruiter_id: user.id,
                 status: 'sent',
             },
             {
@@ -74,7 +75,7 @@ const CandidateJobList = () => {
 
     return (
         <div className="space-y-4">
-            {jobs?.map(job => {
+            {jobs?.map((job: JobType) => {
                 const isSent = sentJobIds.includes(job.id);
                 return (
                     <div

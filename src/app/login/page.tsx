@@ -28,7 +28,7 @@ export default function LoginPage() {
     const GOOGLE_AUTH_URL = `http://localhost:8080/oauth2/authorization/google`;
     const [serverError, setServerError] = useState("");
     const mutation = useMutation({
-        mutationFn: async (data) => {
+        mutationFn: async (data: { email: string; password: string }) => {
             try {
                 // const response = await axios.post("http://localhost:8080/api/login", data);
                 const response = await api.post("/login", data);
@@ -63,7 +63,7 @@ export default function LoginPage() {
     };
 
     const orbVariants = {
-        animate: (i) => ({
+        animate: (i: number) => ({
             x: [0, Math.random() * 150 - 75, Math.random() * 150 - 75, 0],
             y: [0, Math.random() * 150 - 75, Math.random() * 150 - 75, 0],
             scale: [1, 1.1 + Math.random() * 0.2, 0.9 - Math.random() * 0.1, 1],
@@ -71,7 +71,7 @@ export default function LoginPage() {
             transition: {
                 duration: 20 + i * 5, // Vary duration
                 repeat: Infinity,
-                repeatType: "mirror",
+                repeatType: "mirror" as const,
                 ease: "easeInOut",
             },
         }),

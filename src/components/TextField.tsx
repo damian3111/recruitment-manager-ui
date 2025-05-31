@@ -10,6 +10,7 @@ import React, { InputHTMLAttributes } from 'react';
 
 type TextFieldProps = {
     label: string;
+    error?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
 export default function TextField({ label, ...props }: TextFieldProps) {

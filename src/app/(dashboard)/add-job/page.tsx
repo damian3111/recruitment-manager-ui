@@ -58,11 +58,15 @@ export default function JobForm() {
             setFormData({
                 ...data,
                 benefits: data.benefits ?? '',
+                company: data.company_name ?? '',
             });
             setShowConfirm(true);
         } catch (err) {
-            toast.error('Form submission error:', err);
-            toast.error('Failed to submit form');
+            if (err instanceof Error) {
+                toast.error(`Form submission error: ${err.message}`);
+            } else {
+                toast.error('Form submission error');
+            }
         }
     };
 
@@ -257,7 +261,7 @@ export default function JobForm() {
                             <TextAreaField
                                 label="Benefits (Optional)"
                                 {...register('benefits')}
-                                error={errors.benefit?.message}
+                                error={errors.benefits?.message}
                                 className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
                             />
                             <div className="text-right">

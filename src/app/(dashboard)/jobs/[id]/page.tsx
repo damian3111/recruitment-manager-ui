@@ -149,7 +149,7 @@ export default function JobDetailPage() {
                             transition={{ duration: 0.3, delay: 0.2 }}
                             className="text-lg text-gray-600"
                         >
-                            {job.company_name} · {job.location}
+                            {job.company} · {job.location}
                         </motion.p>
                     </div>
 

@@ -18,6 +18,7 @@ import {
 } from '@/lib/jobService';
 import {motion} from "framer-motion";
 import {ArrowLeft} from "lucide-react";
+import {CustomTagProps} from "rc-select/es/BaseSelect";
 
 // Proficiency levels from CandidateFilters
 const PROFICIENCY_LEVELS = [
@@ -137,8 +138,8 @@ const decodeSkill = (value: string) => {
     return { name, proficiencyLevel };
 };
 
-const tagRender = (props: { value?: string; label?: string; onClose: () => void }) => {
-    const { value, onClose } = props;
+const tagRender = (props: CustomTagProps) => {
+    const { label, onClose } = props;
     return (
         <div
             style={{
@@ -151,7 +152,7 @@ const tagRender = (props: { value?: string; label?: string; onClose: () => void 
                 alignItems: 'center',
             }}
         >
-            <span>{value}</span>
+            <span>{label ?? 'Unknown'}</span>
             <span
                 onClick={onClose}
                 style={{ marginLeft: '8px', cursor: 'pointer', color: '#000000' }}
@@ -161,6 +162,7 @@ const tagRender = (props: { value?: string; label?: string; onClose: () => void 
         </div>
     );
 };
+
 
 const suffix = (count: number) => (
     <span>{count}</span>
@@ -185,7 +187,7 @@ const jobSchema = z.object({
         .array(
             z.object({
                 name: z.string(),
-                proficiencyLevel: z.string().optional(),
+                proficiencyLevel: z.string(),
             })
         )
         .optional(),
@@ -247,27 +249,45 @@ export default function JobForm() {
     };
 
     const handleSelect = (
-        value: string,
-        currentSkills: { name: string; proficiencyLevel?: string }[]
+        values: string[], // Changed from string to string[]
+        currentSkills: { name: string; proficiencyLevel?: string }[],
     ) => {
-        const { name, proficiencyLevel } = decodeSkill(value);
-        if (!name) return currentSkills;
+        let updatedSkills = [...currentSkills];
 
-        // Remove any existing entry for this skill
-        const updatedSkills = currentSkills.filter((s) => s.name !== name);
+        values.forEach((value) => {
+            const { name, proficiencyLevel } = decodeSkill(value);
+            if (!name) return; // Skip invalid skills
 
-        // Add new entry
-        updatedSkills.push({ name, proficiencyLevel });
+            // Remove any existing entry for this skill
+            updatedSkills = updatedSkills.filter((s) => s.name !== name);
+
+            // Add new entry
+            updatedSkills.push({ name, proficiencyLevel });
+        });
 
         return updatedSkills;
     };
+    const handleDeselect = (
+        values: string[], // Changed from string to string[]
+        currentSkills: { name: string; proficiencyLevel?: string }[], // Corrected type
+    ) => {
+        let updatedSkills = [...currentSkills];
 
-    const handleDeselect = (value: string, currentSkills: { name: string; proficiencyLevel?: string }[]) => {
-        if (isSkillNode(value)) {
-            return currentSkills.filter((s) => s.name !== value);
-        }
-        const { name, proficiencyLevel } = decodeSkill(value);
-        return currentSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel);
+        values.forEach((value) => {
+            if (isSkillNode(value)) {
+                // Remove skill node (e.g., 'javascript')
+                updatedSkills = updatedSkills.filter((s) => s.name !== value);
+            } else {
+                // Remove specific proficiency (e.g., 'javascript:Beginner')
+                const { name, proficiencyLevel } = decodeSkill(value);
+                updatedSkills = updatedSkills.filter(
+                    (s) =>
+                        !(s.name === name && s.proficiencyLevel === proficiencyLevel),
+                );
+            }
+        });
+
+        return updatedSkills;
     };
 
     const onSubmit = (data: JobFormType) => {
@@ -275,6 +295,7 @@ export default function JobForm() {
             const normalizedData: Omit<JobType, 'id'> = {
                 ...data,
                 benefits: data.benefits ?? '',
+                company: '',
                 skills: data.skills ?? [],
             };
             setFormData(normalizedData);

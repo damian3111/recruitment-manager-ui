@@ -33,7 +33,7 @@ export default function CandidatesPage() {
     const sendInvitationMutation = useSendInvite();
     const [filters, setFilters] = useState<CandidateFilter>({});
     const debouncedFilters = useDebouncedValue(filters, 500);
-    const [focusedField, setFocusedField] = useState<"first_name" | "last_name">("first_name");
+    const [focusedField, setFocusedField] = useState<keyof CandidateFilter | null>(null);
     const deleteInvite = useDeleteInvite();
     const [bookmarkedCandidateIds, setBookmarkedCandidateIds] = useState<number[]>([]);
     const [page, setPage] = useState(0);
@@ -107,7 +107,7 @@ export default function CandidatesPage() {
                     </Button>
                 </div>}
                 <AnimatePresence>
-                    {candidates?.content?.map((candidate) => (
+                    {candidates?.content?.map((candidate: CandidateType) => (
                         <motion.div
                             key={candidate.id}
                             initial={{ opacity: 0, y: 20 }}

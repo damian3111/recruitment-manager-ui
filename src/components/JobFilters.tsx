@@ -1,5 +1,6 @@
 'use client';
 
+import { JobFilter } from '@/lib/jobService';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useEffect, useRef } from 'react';
@@ -10,11 +11,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { JobFilter } from '@/lib/jobService';
 import { motion } from 'framer-motion';
 import { TreeSelect as AntTreeSelect } from 'antd';
+import { BaseSelectRef } from 'rc-select';
+import { CustomTagProps } from 'rc-select/es/BaseSelect';
 
-// Maximum number of selectable skills
 const PROFICIENCY_LEVELS = [
     { value: 'Beginner', label: 'Beginner' },
     { value: 'Familiar', label: 'Familiar' },
@@ -22,18 +23,16 @@ const PROFICIENCY_LEVELS = [
     { value: 'Expert', label: 'Expert' },
 ];
 
-// Transform treeData to include proficiency levels
 const generateTreeDataWithProficiency = (baseTreeData: any[]) => {
     return baseTreeData.map((category) => ({
         ...category,
-        checkable: false, // Make sections unclickable (no checkbox)
+        checkable: false,
         children: category.children.map((skill: { title: string; value: string }) => ({
             title: skill.title,
-            value: skill.value, // Parent skill node
-            // selectable: true, // Allow selecting skill nodes (optional, controlled by logic)
+            value: skill.value,
             children: PROFICIENCY_LEVELS.map((prof) => ({
                 title: prof.label,
-                value: `${skill.value}:${prof.value}`, // e.g., "java:Expert"
+                value: `${skill.value}:${prof.value}`,
             })),
         })),
     }));
@@ -125,8 +124,8 @@ const treeData = generateTreeDataWithProficiency([
 type Props = {
     filters: JobFilter;
     onChange: (filters: JobFilter) => void;
-    focusedField: keyof JobFilter;
-    setFocusedField: (field: keyof JobFilter) => void;
+    focusedField: keyof JobFilter | null;
+    setFocusedField: (field: keyof JobFilter | null) => void;
 };
 
 export default function JobFilters({
@@ -136,25 +135,26 @@ export default function JobFilters({
                                        setFocusedField,
                                    }: Props) {
     const refs = {
-        title: useRef<HTMLInputElement>(null),
-        location: useRef<HTMLInputElement>(null),
-        salary_min: useRef<HTMLInputElement>(null),
-        salary_max: useRef<HTMLInputElement>(null),
-        company_name: useRef<HTMLInputElement>(null),
-        posted_date: useRef<HTMLInputElement>(null),
-        application_deadline: useRef<HTMLInputElement>(null),
-        currency: useRef<HTMLInputElement>(null),
-        employment_type: useRef<HTMLInputElement>(null),
-        industry: useRef<HTMLInputElement>(null),
-        experience_level: useRef<HTMLInputElement>(null),
-        skills: useRef<AntTreeSelect>(null),
+        title: useRef<HTMLInputElement | null>(null),
+        location: useRef<HTMLInputElement | null>(null),
+        salary_min: useRef<HTMLInputElement | null>(null),
+        salary_max: useRef<HTMLInputElement | null>(null),
+        company_name: useRef<HTMLInputElement | null>(null),
+        posted_date: useRef<HTMLInputElement | null>(null),
+        application_deadline: useRef<HTMLInputElement | null>(null),
+        currency: useRef<HTMLInputElement | null>(null),
+        employment_type: useRef<HTMLInputElement | null>(null),
+        employment_mode: useRef<HTMLInputElement | null>(null),
+        industry: useRef<HTMLInputElement | null>(null),
+        experience_level: useRef<HTMLInputElement | null>(null),
+        skills: useRef<BaseSelectRef | null>(null),
     };
 
     useEffect(() => {
         if (focusedField === 'skills') {
             refs.skills.current?.focus();
-        } else {
-            refs[focusedField]?.current?.focus();
+        } else if (focusedField !== null) {
+            refs[focusedField]?.current?.focus?.();
         }
     }, [focusedField]);
 
@@ -163,10 +163,14 @@ export default function JobFilters({
         field: keyof JobFilter
     ) => {
         setFocusedField(field);
-        const value = e.target.value;
         onChange({
             ...filters,
-            [field]: field.includes('salary') ? (value ? +value : undefined) : value || undefined,
+            [field]:
+                field === 'salary_min' || field === 'salary_max'
+                    ? e.target.value
+                        ? +e.target.value
+                        : undefined
+                    : e.target.value || undefined,
         });
     };
 
@@ -186,116 +190,119 @@ export default function JobFilters({
         const [name, proficiencyLevel] = value.split(':');
         return { name, proficiencyLevel };
     };
+
     const isSkillNode = (value: string) => {
-        return !value.includes(':'); // Skill nodes don't have ":" (e.g., "java")
+        return !value.includes(':');
     };
 
-    const tagRender = (props: { value?: string; label?: string; onClose: () => void }) => {
+    const tagRender = (props: CustomTagProps) => {
         const { value, onClose } = props;
         return (
             <div
-                style={{ margin: '2px', padding: '2px 8px', background: '#f5f5f5',border: '1px solid #d9d9d9' ,borderRadius: '4px',display: 'flex',alignItems: 'center'}}
+                style={{
+                    margin: '2px', padding: '2px 8px',
+                    background: '#f5f5f5',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
             >
                 <span>{value}</span>
                 <span
                     onClick={onClose}
                     style={{ marginLeft: '8px', cursor: 'pointer', color: '#000000' }}
-                >
-                    ×
-                </span>
-            </div>
-        );
-    };
+                        >
+                        ×
+                        </span>
+                        </div>
+                        );
+                    };
 
-    const getProficiencyNodes = (skillValue: string) => {
-        return PROFICIENCY_LEVELS.map((prof) => encodeSkill(skillValue, prof.value));
-    };
+                        const getProficiencyNodes = (skillValue: string) => {
+                        return PROFICIENCY_LEVELS.map((prof) => encodeSkill(skillValue, prof.value));
+                    };
 
-    const handleSkillsChange = (selectedValues: string[]) => {
-        setFocusedField('skills');
+                        const handleSkillsChange = (selectedValues: string[]) => {
+                        setFocusedField('skills');
 
-        // Expand skill nodes to include all proficiency levels
-        const expandedValues: string[] = [];
-        selectedValues.forEach((value) => {
-            if (isSkillNode(value)) {
-                // If a skill node is selected, add all its proficiency levels
-                expandedValues.push(...getProficiencyNodes(value));
-            } else {
-                // If a proficiency node is selected, add it directly
-                expandedValues.push(value);
-            }
-        });
+                        const expandedValues: string[] = [];
+                        selectedValues.forEach((value) => {
+                        if (isSkillNode(value)) {
+                        expandedValues.push(...getProficiencyNodes(value));
+                    } else {
+                        expandedValues.push(value);
+                    }
+                    });
 
-        // Remove duplicates and limit to MAX_SKILLS
-        const uniqueValues = Array.from(new Set(expandedValues));
+                        const uniqueValues = Array.from(new Set(expandedValues));
+                        const newSkills = uniqueValues.map((value) => decodeSkill(value));
 
-        // Convert to skills array
-        const newSkills = uniqueValues.map((value) => decodeSkill(value));
+                        onChange({
+                        ...filters,
+                        skills: newSkills.length > 0 ? newSkills : undefined,
+                    });
+                    };
 
-        console.log("newSkills", newSkills);
+                        const handleSelect = (values: string[], option: any) => {
+                        setFocusedField('skills');
+                        const currentSkills = filters.skills || [];
+                        let updatedSkills = [...currentSkills];
 
-        onChange({
-            ...filters,
-            skills: newSkills.length > 0 ? newSkills : undefined,
-        });
-    };
+                        values.forEach((value) => {
+                        if (isSkillNode(value)) {
+                        const newProficiencies = PROFICIENCY_LEVELS.map((prof) => ({
+                        name: value,
+                        proficiencyLevel: prof.value,
+                    }));
+                        updatedSkills = [
+                        ...updatedSkills.filter((s) => s.name !== value),
+                        ...newProficiencies,
+                        ];
+                    } else {
+                        const { name, proficiencyLevel } = decodeSkill(value);
+                        if (!name || !proficiencyLevel) return;
+                        updatedSkills = [
+                        ...updatedSkills.filter(
+                        (s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel,
+                        ),
+                    { name, proficiencyLevel },
+                        ];
+                    }
+                    });
 
-    const handleSelect = (value: string) => {
-        const currentSkills = filters.skills || [];
-        let updatedSkills = [...currentSkills];
+                        onChange({
+                        ...filters,
+                        skills: updatedSkills.length > 0 ? updatedSkills : undefined,
+                    });
+                    };
 
-        if (isSkillNode(value)) {
-            // Add all proficiency levels for the skill
-            const newProficiencies = PROFICIENCY_LEVELS.map((prof) => ({
-                name: value,
-                proficiencyLevel: prof.value,
-            }));
-            // Remove existing entries for this skill and add new ones
-            updatedSkills = [
-                ...currentSkills.filter((s) => s.name !== value),
-                ...newProficiencies,
-            ];
-        } else {
-            const { name, proficiencyLevel } = decodeSkill(value);
-            if (!name || !proficiencyLevel) return;
-            // Add single proficiency level
-            updatedSkills = [
-                ...currentSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel),
-                { name, proficiencyLevel },
-            ];
-        }
+                        const handleDeselect = (values: string[], option: any) => {
+                        setFocusedField('skills');
+                        let updatedSkills = filters.skills || [];
 
-        onChange({
-            ...filters,
-            skills: updatedSkills.length > 0 ? updatedSkills : undefined,
-        });
-    };
-    const handleDeselect = (value: string) => {
-        let updatedSkills = filters.skills || [];
+                        values.forEach((value) => {
+                        if (isSkillNode(value)) {
+                        updatedSkills = updatedSkills.filter((s) => s.name !== value);
+                    } else {
+                        const { name, proficiencyLevel } = decodeSkill(value);
+                        updatedSkills = updatedSkills.filter(
+                        (s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel,
+                        );
+                    }
+                    });
 
-        if (isSkillNode(value)) {
-            // Remove all proficiency levels for the skill
-            updatedSkills = updatedSkills.filter((s) => s.name !== value);
-        } else {
-            const { name, proficiencyLevel } = decodeSkill(value);
-            // Remove specific proficiency level
-            updatedSkills = updatedSkills.filter(
-                (s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel
-            );
-        }
+                        onChange({
+                        ...filters,
+                        skills: updatedSkills.length > 0 ? updatedSkills : undefined,
+                    });
+                    };
 
-        onChange({
-            ...filters,
-            skills: updatedSkills.length > 0 ? updatedSkills : undefined,
-        });
-    };
-
-    const suffix = (
-        <>
-            <span>{filters.skills?.length || 0}</span>
-        </>
+                        const suffix = (
+                        <>
+                        <span>{filters.skills?.length || 0}</span>
+    </>
     );
-
     return (
         <div className="space-y-6">
             <motion.h3
@@ -329,7 +336,10 @@ export default function JobFilters({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.15 }}
             >
-                <Label htmlFor="company_name" className="block text-base font-semibold text-gray-900 mb-2">
+                <Label
+                    htmlFor="company_name"
+                    className="block text-base font-semibold text-gray-900 mb-2"
+                >
                     Company Name
                 </Label>
                 <Input
@@ -367,7 +377,10 @@ export default function JobFilters({
                 className="flex gap-4"
             >
                 <div className="flex-1">
-                    <Label htmlFor="salary_min" className="block text-base font-semibold text-gray-900 mb-2">
+                    <Label
+                        htmlFor="salary_min"
+                        className="block text-base font-semibold text-gray-900 mb-2"
+                    >
                         Min Salary
                     </Label>
                     <Input
@@ -381,7 +394,10 @@ export default function JobFilters({
                     />
                 </div>
                 <div className="flex-1">
-                    <Label htmlFor="salary_max" className="block text-base font-semibold text-gray-900 mb-2">
+                    <Label
+                        htmlFor="salary_max"
+                        className="block text-base font-semibold text-gray-900 mb-2"
+                    >
                         Max Salary
                     </Label>
                     <Input
@@ -419,7 +435,10 @@ export default function JobFilters({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.35 }}
             >
-                <Label htmlFor="employment_type" className="block text-base font-semibold text-gray-900 mb-2">
+                <Label
+                    htmlFor="employment_type"
+                    className="block text-base font-semibold text-gray-900 mb-2"
+                >
                     Employment Type
                 </Label>
                 <Input
@@ -455,7 +474,10 @@ export default function JobFilters({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.45 }}
             >
-                <Label htmlFor="experience_level" className="block text-base font-semibold text-gray-900 mb-2">
+                <Label
+                    htmlFor="experience_level"
+                    className="block text-base font-semibold text-gray-900 mb-2"
+                >
                     Experience Level
                 </Label>
                 <Input
@@ -473,7 +495,10 @@ export default function JobFilters({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.5 }}
             >
-                <Label htmlFor="employment_mode" className="block text-base font-semibold text-gray-900 mb-2">
+                <Label
+                    htmlFor="employment_mode"
+                    className="block text-base font-semibold text-gray-900 mb-2"
+                >
                     Employment Mode
                 </Label>
                 <Select
@@ -511,7 +536,10 @@ export default function JobFilters({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.55 }}
             >
-                <Label htmlFor="posted_date" className="block text-base font-semibold text-gray-900 mb-2">
+                <Label
+                    htmlFor="posted_date"
+                    className="block text-base font-semibold text-gray-900 mb-2"
+                >
                     Posted Date
                 </Label>
                 <Input
@@ -520,7 +548,7 @@ export default function JobFilters({
                     ref={refs.posted_date}
                     value={filters.posted_date || ''}
                     onChange={(e) => handleInputChange(e, 'posted_date')}
-                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
                 />
             </motion.div>
 
@@ -529,7 +557,10 @@ export default function JobFilters({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.6 }}
             >
-                <Label htmlFor="application_deadline" className="block text-base font-semibold text-gray-900 mb-2">
+                <Label
+                    htmlFor="application_deadline"
+                    className="block text-base font-semibold text-gray-900 mb-2"
+                >
                     Application Deadline
                 </Label>
                 <Input

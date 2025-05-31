@@ -22,9 +22,10 @@ export type JobType = {
     posted_date?: string;
     application_deadline?: string;
     user_id?: string;
+    skills?: { name: string; proficiencyLevel: string }[];
 };
 
-export interface JobFilter {
+export type JobFilter = {
     title?: string;
     location?: string;
     salary_min?: number;
@@ -34,9 +35,9 @@ export interface JobFilter {
     application_deadline?: string;
     currency?: string;
     employment_type?: string;
+    employment_mode?: string;
     industry?: string;
     experience_level?: string;
-    employment_mode?: string;
     skills?: { name: string; proficiencyLevel: string }[];
 }
 const API_URL = 'http://localhost:8080/jobs';

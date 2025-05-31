@@ -1,7 +1,7 @@
 // src/router.tsx
 import { createRouter, createRoute, RootRoute } from '@tanstack/react-router'
-import Settings from '@/app/settings2/page' // <- adjust to your Settings component path
-import DashboardLayout from '@/app/dashboard-layout' // <- adjust to your DashboardLayout path
+import Settings from '@/app/settings2/page'
+import DashboardLayout from "@/app/(dashboard)/layout"; // <- adjust to your Settings component path
 
 // 1. Create root route (with a layout)
 const rootRoute = new RootRoute({

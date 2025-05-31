@@ -31,6 +31,7 @@ import ConfirmModal from '@/components/confirmationModal';
 import TextField from '@/components/TextField';
 import TextAreaField from '@/components/TextAreaField';
 import RoleBasedAccessDeniedPage from '@/components/RoleBasedAccessDeniedPage';
+import {CustomTagProps} from "rc-select/es/BaseSelect";
 
 // Proficiency levels from CandidateFilters
 const PROFICIENCY_LEVELS = [
@@ -150,13 +151,12 @@ const decodeSkill = (value: string) => {
     return { name, proficiencyLevel };
 };
 
-const tagRender = (props: { value?: string; label?: string; onClose: () => void }) => {
+const tagRender = (props: CustomTagProps) => {
     const { value, onClose } = props;
     return (
         <div
             style={{
-                margin: '2px',
-                padding: '2px 8px',
+                margin: '2px', padding: '2px 8px',
                 background: '#f5f5f5',
                 border: '1px solid #d9d9d9',
                 borderRadius: '4px',
@@ -169,12 +169,11 @@ const tagRender = (props: { value?: string; label?: string; onClose: () => void 
                 onClick={onClose}
                 style={{ marginLeft: '8px', cursor: 'pointer', color: '#000000' }}
             >
-        ×
-      </span>
+                        ×
+                        </span>
         </div>
     );
 };
-
 const suffix = (count: number) => (
     <>
         <span>{count}</span>
@@ -266,27 +265,48 @@ export default function CandidateForm() {
     };
 
     const handleSelect = (
-        value: string,
-        currentSkills: { name: string; proficiencyLevel?: string }[]
+        values: string[], // Changed from string to string[]
+        currentSkills: { name: string; proficiencyLevel?: string }[],
     ) => {
-        const { name, proficiencyLevel } = decodeSkill(value);
-        if (!name) return currentSkills;
+        let updatedSkills = [...currentSkills];
 
-        // Remove any existing entry for this skill
-        const updatedSkills = currentSkills.filter((s) => s.name !== name);
+        values.forEach((value) => {
+            const { name, proficiencyLevel } = decodeSkill(value);
+            if (!name) return;
 
-        // Add new entry
-        updatedSkills.push({ name, proficiencyLevel });
+            // Remove any existing entry for this skill
+            updatedSkills = updatedSkills.filter((s) => s.name !== name);
 
-        return updatedSkills;
+            // Add new entry
+            updatedSkills.push({ name, proficiencyLevel });
+        });
+
+        // Enforce max 3 skills
+        return updatedSkills.slice(0, 3);
     };
 
-    const handleDeselect = (value: string, currentSkills: { name: string; proficiencyLevel?: string }[]) => {
-        if (isSkillNode(value)) {
-            return currentSkills.filter((s) => s.name !== value);
-        }
-        const { name, proficiencyLevel } = decodeSkill(value);
-        return currentSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel);
+    // Updated handleDeselect to accept string[]
+    const handleDeselect = (
+        values: string[], // Changed from string to string[]
+        currentSkills: { name: string; proficiencyLevel?: string }[],
+    ) => {
+        let updatedSkills = [...currentSkills];
+
+        values.forEach((value) => {
+            if (isSkillNode(value)) {
+                // Remove skill node (e.g., 'javascript')
+                updatedSkills = updatedSkills.filter((s) => s.name !== value);
+            } else {
+                // Remove specific proficiency (e.g., 'javascript:Beginner')
+                const { name, proficiencyLevel } = decodeSkill(value);
+                updatedSkills = updatedSkills.filter(
+                    (s) =>
+                        !(s.name === name && s.proficiencyLevel === proficiencyLevel),
+                );
+            }
+        });
+
+        return updatedSkills;
     };
 
     useEffect(() => {
@@ -438,6 +458,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="first_name" className="block text-base font-semibold text-gray-900 mb-2">First Name</Label>
                                     <TextField
                                         id="first_name"
+                                        label="First Name"
                                         {...register('first_name')}
                                         error={errors.first_name?.message}
                                         disabled
@@ -448,6 +469,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="last_name" className="block text-base font-semibold text-gray-900 mb-2">Last Name</Label>
                                     <TextField
                                         id="last_name"
+                                        label="Last Name"
                                         {...register('last_name')}
                                         error={errors.last_name?.message}
                                         disabled
@@ -460,6 +482,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="email" className="block text-base font-semibold text-gray-900 mb-2">Email</Label>
                                     <TextField
                                         id="email"
+                                        label="Email"
                                         type="email"
                                         {...register('email')}
                                         error={errors.email?.message}
@@ -471,6 +494,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="phone" className="block text-base font-semibold text-gray-900 mb-2">Phone</Label>
                                     <TextField
                                         id="phone"
+                                        label="Phone Number"
                                         {...register('phone')}
                                         error={errors.phone?.message}
                                         className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -482,6 +506,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="profile_picture_url" className="block text-base font-semibold text-gray-900 mb-2">Profile Picture URL</Label>
                                     <TextField
                                         id="profile_picture_url"
+                                        label="Profile Picture"
                                         {...register('profile_picture_url')}
                                         error={errors.profile_picture_url?.message}
                                         className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -491,6 +516,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="headline" className="block text-base font-semibold text-gray-900 mb-2">Headline</Label>
                                     <TextField
                                         id="headline"
+                                        label="Headline"
                                         {...register('headline')}
                                         error={errors.headline?.message}
                                         placeholder="e.g., Full Stack Developer"
@@ -502,6 +528,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="summary" className="block text-base font-semibold text-gray-900 mb-2">Summary</Label>
                                 <TextAreaField
                                     id="summary"
+                                    label="Summary"
                                     {...register('summary')}
                                     error={errors.summary?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -511,6 +538,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="experience" className="block text-base font-semibold text-gray-900 mb-2">Experience</Label>
                                 <TextAreaField
                                     id="experience"
+                                    label="Experience"
                                     {...register('experience')}
                                     error={errors.experience?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -520,6 +548,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="years_of_experience" className="block text-base font-semibold text-gray-900 mb-2">Years of Experience</Label>
                                 <TextField
                                     id="years_of_experience"
+                                    label="Years of Experience"
                                     type="number"
                                     {...register('years_of_experience', { valueAsNumber: true })}
                                     error={errors.years_of_experience?.message}
@@ -530,6 +559,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="education" className="block text-base font-semibold text-gray-900 mb-2">Education</Label>
                                 <TextAreaField
                                     id="education"
+                                    label="Education"
                                     {...register('education')}
                                     error={errors.education?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -539,6 +569,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="certifications" className="block text-base font-semibold text-gray-900 mb-2">Certifications</Label>
                                 <TextAreaField
                                     id="certifications"
+                                    label="Certifications"
                                     {...register('certifications')}
                                     error={errors.certifications?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -548,6 +579,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="work_experiences" className="block text-base font-semibold text-gray-900 mb-2">Work Experiences</Label>
                                 <TextAreaField
                                     id="work_experiences"
+                                    label="Work Experience"
                                     {...register('work_experiences')}
                                     error={errors.work_experiences?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -557,6 +589,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="projects" className="block text-base font-semibold text-gray-900 mb-2">Projects</Label>
                                 <TextAreaField
                                     id="projects"
+                                    label="Projects"
                                     {...register('projects')}
                                     error={errors.projects?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -566,6 +599,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="media_url" className="block text-base font-semibold text-gray-900 mb-2">Media URL</Label>
                                 <TextField
                                     id="media_url"
+                                    label="Media URL"
                                     {...register('media_url')}
                                     error={errors.media_url?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -575,6 +609,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="salary_expectation" className="block text-base font-semibold text-gray-900 mb-2">Salary Expectation</Label>
                                 <TextField
                                     id="salary_expectation"
+                                    label="Salary Expectations"
                                     {...register('salary_expectation')}
                                     error={errors.salary_expectation?.message}
                                     placeholder="e.g., 5000 EUR/month"
@@ -627,6 +662,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="applied_date" className="block text-base font-semibold text-gray-900 mb-2">Applied Date</Label>
                                 <TextField
                                     id="applied_date"
+                                    label="Applied Date"
                                     type="date"
                                     {...register('applied_date')}
                                     error={errors.applied_date?.message}
@@ -637,6 +673,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="location" className="block text-base font-semibold text-gray-900 mb-2">Location</Label>
                                 <TextField
                                     id="location"
+                                    label="Location"
                                     {...register('location')}
                                     error={errors.location?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"

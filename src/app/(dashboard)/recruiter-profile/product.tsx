@@ -10,7 +10,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal } from 'lucide-react';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { SelectProduct } from '@/lib/db';
 // import {useJobs, Job} from "@/lib/jobService";
 
 import { deleteProduct } from './actions';

@@ -1,7 +1,7 @@
 // lib/candidatesService.ts
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { CandidateFilter } from '@/components/CandidateFilters';
+import {CandidateFilter} from "@/lib/candidatesService";
 
 export function useCandidatesFiltered(filters: CandidateFilter) {
     return useQuery({
