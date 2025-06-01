@@ -1,7 +1,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
+// const api: AxiosInstance = axios.create({
+//     baseURL: "http://localhost:8080",
+//     withCredentials: true
+// });
+
 const api: AxiosInstance = axios.create({
-    baseURL: "http://localhost:8080",
+    baseURL: "https://recruitment-manager-api.onrender.com",
     withCredentials: true
 });
 
