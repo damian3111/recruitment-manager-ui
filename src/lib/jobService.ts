@@ -40,7 +40,7 @@ export type JobFilter = {
     experience_level?: string;
     skills?: { name: string; proficiencyLevel: string }[];
 }
-const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
+const BACKEND_URL = process.env.BACKEND_URL;
 
 const API_URL = `${BACKEND_URL}/jobs`;
 
