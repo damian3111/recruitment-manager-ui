@@ -46,7 +46,7 @@ export type CandidateFilter = {
     location?: string;
     skills?: { name: string; proficiencyLevel?: string }[];
 };
-const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const API_URL = `${BACKEND_URL}/candidates`;
 const LOGOUT_URL = `${BACKEND_URL}`;

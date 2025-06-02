@@ -5,10 +5,10 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 //     withCredentials: true
 // });
 
-const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const api: AxiosInstance = axios.create({
-    baseURL: "BACKEND_URL",
+    baseURL: `${BACKEND_URL}`,
     withCredentials: true
 });
 

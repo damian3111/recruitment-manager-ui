@@ -30,7 +30,7 @@ export default function RegisterPage() {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(schema),
     });
-    const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
+    const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     const router = useRouter();
 

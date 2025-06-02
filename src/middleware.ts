@@ -9,6 +9,8 @@ export default async function middleware(req: NextRequest) {
     const secret = Buffer.from(process.env.JWT_SECRET!, 'base64');
     let payload;
 
+    console.log("secret");
+    console.log(secret);
     const token = req.cookies.get("authToken")?.value ?? "";
 
     console.log(token);
