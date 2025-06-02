@@ -40,13 +40,15 @@ export type JobFilter = {
     experience_level?: string;
     skills?: { name: string; proficiencyLevel: string }[];
 }
-const API_URL = 'http://localhost:8080/jobs';
+const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
+
+const API_URL = `${BACKEND_URL}/jobs`;
 
 export const useJobs = () => {
     return useQuery<JobType[]>({
         queryKey: ['jobs'],
         queryFn: async () => {
-            const res = await axios.get("http://localhost:8080/jobs");
+            const res = await axios.get(`${BACKEND_URL}/jobs`);
             return res.data;
         },
         staleTime: 1000 * 60,
@@ -79,7 +81,7 @@ export const useJobsByUser = (userId: number) => {
     return useQuery<JobType[]>({
         queryKey: ['jobs', userId],
         queryFn: async () => {
-            const res = await axios.get(`http://localhost:8080/jobs/user/${userId}`);
+            const res = await axios.get(`${BACKEND_URL}/jobs/user/${userId}`);
             return res.data;
         },
         enabled: !!userId, // only run if userId is provided

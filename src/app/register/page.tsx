@@ -30,12 +30,13 @@ export default function RegisterPage() {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
         resolver: zodResolver(schema),
     });
+    const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
 
     const router = useRouter();
 
     const mutation = useMutation<FormData, Error, FormData>({
         mutationFn: async (data) => {
-            return axios.post("http://localhost:8080/users", data);
+            return axios.post(`${BACKEND_URL}/users`, data);
         },
         onSuccess: () => {
             toast.success("Registration successful!");
@@ -68,7 +69,7 @@ export default function RegisterPage() {
     };
 
     const handleGoogleLogin = () => {
-        window.location.href = "http://localhost:8080/oauth2/authorization/google";
+        window.location.href = `${BACKEND_URL}/oauth2/authorization/google`;
     }
 
     return (

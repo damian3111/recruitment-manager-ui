@@ -5,8 +5,10 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 //     withCredentials: true
 // });
 
+const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
+
 const api: AxiosInstance = axios.create({
-    baseURL: "https://java-application-uo30.onrender.com",
+    baseURL: "BACKEND_URL",
     withCredentials: true
 });
 

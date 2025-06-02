@@ -25,7 +25,7 @@ export default function LoginPage() {
         resolver: zodResolver(loginSchema),
     });
     const router = useRouter();
-    const GOOGLE_AUTH_URL = `http://localhost:8080/oauth2/authorization/google`;
+    // const GOOGLE_AUTH_URL = `http://localhost:8080/oauth2/authorization/google`;
     const [serverError, setServerError] = useState("");
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {

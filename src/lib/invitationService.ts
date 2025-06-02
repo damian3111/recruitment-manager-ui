@@ -8,12 +8,14 @@ export type InvitationType = {
     id: number;
     recruiter_id: number;
     candidate_id: number;
+
     job_id: number;
     status: InvitationStatus;
     created_at: string;
 };
+const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
 
-const API_URL = 'http://localhost:8080/invitations';
+const API_URL = `${BACKEND_URL}/invitations`;
 
 export const useInvites = () => {
     return useQuery<InvitationType[]>({
