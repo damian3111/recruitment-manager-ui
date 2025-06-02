@@ -46,9 +46,10 @@ export type CandidateFilter = {
     location?: string;
     skills?: { name: string; proficiencyLevel?: string }[];
 };
+const BACKEND_URL = Buffer.from(process.env.BACKEND_URL!, 'base64');
 
-const API_URL = 'http://localhost:8080/candidates';
-const LOGOUT_URL = 'http://localhost:8080';
+const API_URL = `${BACKEND_URL}/candidates`;
+const LOGOUT_URL = `${BACKEND_URL}`;
 
 export const useCandidates = () => {
     return useQuery<CandidateType[]>({
