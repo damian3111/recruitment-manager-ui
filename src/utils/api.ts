@@ -6,7 +6,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 // });
 
 const api: AxiosInstance = axios.create({
-    baseURL: "https://recruitment-manager-api.onrender.com",
+    baseURL: "https://java-application-uo30.onrender.com",
     withCredentials: true
 });
 
