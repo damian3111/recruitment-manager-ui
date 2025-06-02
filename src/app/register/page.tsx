@@ -48,19 +48,20 @@ export default function RegisterPage() {
 
 
     const orbVariants = {
-        animate: (i) => ({
+        animate: (i: number) => ({
             x: [0, Math.random() * 150 - 75, Math.random() * 150 - 75, 0],
             y: [0, Math.random() * 150 - 75, Math.random() * 150 - 75, 0],
             scale: [1, 1.1 + Math.random() * 0.2, 0.9 - Math.random() * 0.1, 1],
-            opacity: [0.2, 0.5, 0.3, 0.2], // Adjusted opacity for calmer look
+            opacity: [0.2, 0.5, 0.3, 0.2],
             transition: {
-                duration: 20 + i * 5, // Vary duration
+                duration: 20 + i * 5,
                 repeat: Infinity,
-                repeatType: "mirror",
+                repeatType: "mirror" as const,
                 ease: "easeInOut",
             },
         }),
     };
+
     const cardVariants = {
         hidden: { opacity: 0, y: 50, scale: 0.95 },
         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },

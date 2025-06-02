@@ -21,14 +21,15 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 
 const appearanceFormSchema = z.object({
-    theme: z.enum(['light', 'dark'], {
+    theme: z.enum(['light', 'dark', 'system'], {
         required_error: 'Please select a theme.',
     }),
     font: z.enum(fonts, {
         invalid_type_error: 'Select a font',
         required_error: 'Please select a font.',
     }),
-})
+});
+
 
 type AppearanceFormValues = z.infer<typeof appearanceFormSchema>
 

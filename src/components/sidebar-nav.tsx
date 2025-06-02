@@ -25,6 +25,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
 export default function SidebarNav({
                                        className,
                                        items,
+                                       dir = "ltr",
                                        ...props
                                    }: SidebarNavProps) {
     const pathname = usePathname()
@@ -59,28 +60,30 @@ export default function SidebarNav({
 
             {/* Desktop sidebar */}
             <ScrollArea
-                orientation="horizontal"
                 type="always"
-                className="bg-background hidden w-full min-w-48 px-2 py-4 md:block"
+                className={cn(
+                    "bg-background hidden w-full min-w-48 px-2 py-4 md:block",
+                    className
+                )}
+                {...props}
             >
                 <nav
                     className={cn(
-                        'flex space-x-2 py-2 lg:flex-col lg:space-y-3 lg:space-x-0',
+                        "flex space-x-2 py-2 lg:flex-col lg:space-y-3 lg:space-x-0",
                         className
                     )}
-                    {...props}
                 >
                     {items.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
                             className={cn(
-                                buttonVariants({ variant: 'ghost' }),
-                                'justify-start text-1xl py-3 px-4', // Bigger text, more padding
-                                pathname === item.href && 'bg-muted hover:bg-muted'
+                                buttonVariants({ variant: "ghost" }),
+                                "justify-start text-xl py-3 px-4",
+                                pathname === item.href && "bg-muted hover:bg-muted"
                             )}
                         >
-                            <span className="mr-3 text-2xl">{item.icon}</span> {/* Bigger icon */}
+                            <span className="mr-3 text-2xl">{item.icon}</span>
                             {item.title}
                         </Link>
                     ))}

@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/select';
 import { motion } from 'framer-motion';
 import { TreeSelect as AntTreeSelect } from 'antd';
+import {BaseSelectRef} from "rc-select";
+import {CustomTagProps} from "rc-select/es/BaseSelect";
 
 // Maximum number of selectable skill-proficiency pairs
 const PROFICIENCY_LEVELS = [
@@ -126,7 +128,7 @@ const treeData = generateTreeDataWithProficiency([
 type Props = {
     filters: CandidateFilter;
     onChange: (filters: CandidateFilter) => void;
-    focusedField: keyof CandidateFilter;
+    focusedField: keyof CandidateFilter | null;
     setFocusedField: (field: keyof CandidateFilter) => void;
 };
 
@@ -153,18 +155,17 @@ export default function CandidateFilters({
         applied_date_from: useRef<HTMLInputElement>(null),
         applied_date_to: useRef<HTMLInputElement>(null),
         location: useRef<HTMLInputElement>(null),
-        skills: useRef<AntTreeSelect>(null),
+        skills: useRef<BaseSelectRef>(null),
     };
 
 
     useEffect(() => {
         if (focusedField === 'skills') {
-            refs.skills.current?.focus();
-        } else {
-            refs[focusedField]?.current?.focus();
+            (refs.skills.current as { focus?: () => void })?.focus?.();
+        } else if (focusedField !== null) {
+            refs[focusedField]?.current?.focus?.();
         }
     }, [focusedField]);
-
     const handleInputChange = (
         e: React.ChangeEvent<HTMLInputElement>,
         field: keyof CandidateFilter
@@ -203,19 +204,27 @@ export default function CandidateFilters({
     const isSkillNode = (value: string) => {
         return !value.includes(':'); // Skill nodes don't have ":" (e.g., "java")
     };
-    const tagRender = (props: { value?: string; label?: string; onClose: () => void }) => {
+    const tagRender = (props: CustomTagProps) => {
         const { value, onClose } = props;
         return (
             <div
-                style={{ margin: '2px', padding: '2px 8px', background: '#f5f5f5',border: '1px solid #d9d9d9' ,borderRadius: '4px',display: 'flex',alignItems: 'center'}}
+                style={{
+                    margin: '2px',
+                    padding: '2px 8px',
+                    background: '#f5f5f5',
+                    border: '1px solid #d9d9d9',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                }}
             >
                 <span>{value}</span>
                 <span
                     onClick={onClose}
                     style={{ marginLeft: '8px', cursor: 'pointer', color: '#000000' }}
                 >
-                    ×
-                </span>
+                ×
+            </span>
             </div>
         );
     };
@@ -252,30 +261,30 @@ export default function CandidateFilters({
         });
     };
 
-    const handleSelect = (value: string) => {
+    const handleSelect = (values: string[], option: any) => {
         const currentSkills = filters.skills || [];
         let updatedSkills = [...currentSkills];
 
-        if (isSkillNode(value)) {
-            // Add all proficiency levels for the skill
-            const newProficiencies = PROFICIENCY_LEVELS.map((prof) => ({
-                name: value,
-                proficiencyLevel: prof.value,
-            }));
-            // Remove existing entries for this skill and add new ones
-            updatedSkills = [
-                ...currentSkills.filter((s) => s.name !== value),
-                ...newProficiencies,
-            ];
-        } else {
-            const { name, proficiencyLevel } = decodeSkill(value);
-            if (!name || !proficiencyLevel) return;
-            // Add single proficiency level
-            updatedSkills = [
-                ...currentSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel),
-                { name, proficiencyLevel },
-            ];
-        }
+        // values to tablica wybranych wartości - obsłuż je wszystkie:
+        values.forEach(value => {
+            if (isSkillNode(value)) {
+                const newProficiencies = PROFICIENCY_LEVELS.map((prof) => ({
+                    name: value,
+                    proficiencyLevel: prof.value,
+                }));
+                updatedSkills = [
+                    ...updatedSkills.filter((s) => s.name !== value),
+                    ...newProficiencies,
+                ];
+            } else {
+                const { name, proficiencyLevel } = decodeSkill(value);
+                if (!name || !proficiencyLevel) return;
+                updatedSkills = [
+                    ...updatedSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel),
+                    { name, proficiencyLevel },
+                ];
+            }
+        });
 
         onChange({
             ...filters,
@@ -283,19 +292,22 @@ export default function CandidateFilters({
         });
     };
 
-    const handleDeselect = (value: string) => {
+    const handleDeselect = (values: string[], option: any) => {
         let updatedSkills = filters.skills || [];
 
-        if (isSkillNode(value)) {
-            // Remove all proficiency levels for the skill
-            updatedSkills = updatedSkills.filter((s) => s.name !== value);
-        } else {
-            const { name, proficiencyLevel } = decodeSkill(value);
-            // Remove specific proficiency level
-            updatedSkills = updatedSkills.filter(
-                (s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel
-            );
-        }
+        // Process each deselected value
+        values.forEach((value) => {
+            if (isSkillNode(value)) {
+                // Remove all proficiency levels for the skill
+                updatedSkills = updatedSkills.filter((s) => s.name !== value);
+            } else {
+                const { name, proficiencyLevel } = decodeSkill(value);
+                // Remove specific proficiency level
+                updatedSkills = updatedSkills.filter(
+                    (s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel
+                );
+            }
+        });
 
         onChange({
             ...filters,
@@ -640,7 +652,7 @@ export default function CandidateFilters({
                     value={
                         filters?.skills
                             ?.filter((s) => s.name && s.proficiencyLevel)
-                            .map((s) => encodeSkill(s.name, s.proficiencyLevel)) || []
+                            .map((s) => encodeSkill(s.name!, s.proficiencyLevel!)) || []
                     }
                     onChange={handleSkillsChange}
                     onSelect={handleSelect}

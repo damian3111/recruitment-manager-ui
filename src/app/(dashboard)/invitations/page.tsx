@@ -216,7 +216,7 @@ export default function Dashboard() {
                                                                     invite.status === 'sent'
                                                                         ? 'secondary'
                                                                         : invite.status === 'accepted'
-                                                                            ? 'success'
+                                                                            ? 'default' // Changed from 'success' to 'default'
                                                                             : 'destructive'
                                                                 }
                                                                 className="px-3 py-1 text-sm"
@@ -326,7 +326,7 @@ export default function Dashboard() {
                                                                     invite.status === 'sent'
                                                                         ? 'secondary'
                                                                         : invite.status === 'accepted'
-                                                                            ? 'success'
+                                                                            ? 'default' // Changed from 'success' to 'default'
                                                                             : 'destructive'
                                                                 }
                                                                 className="px-3 py-1 text-sm"
@@ -444,7 +444,7 @@ export default function Dashboard() {
                                                                     invite.status === 'sent'
                                                                         ? 'secondary'
                                                                         : invite.status === 'accepted'
-                                                                            ? 'success'
+                                                                            ? 'default' // Changed from 'success' to 'default'
                                                                             : 'destructive'
                                                                 }
                                                                 className="px-3 py-1 text-sm"

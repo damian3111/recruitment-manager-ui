@@ -1,84 +1,72 @@
-"use client"
+// context/theme-context.tsx
+import { createContext, useContext, useState, useEffect } from 'react';
 
-import { createContext, useContext, useEffect, useState } from 'react'
+type Theme = 'light' | 'dark' | 'system';
 
-type Theme = 'dark' | 'light' | 'system'
-
-type ThemeProviderProps = {
-    children: React.ReactNode
-    defaultTheme?: Theme
-    storageKey?: string
+interface ThemeContextType {
+    theme: Theme;
+    setTheme: (theme: Theme) => void;
 }
 
-type ThemeProviderState = {
-    theme: Theme
-    setTheme: (theme: Theme) => void
-}
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const initialState: ThemeProviderState = {
-    theme: 'system',
-    setTheme: () => null,
-}
-
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
-
-export function ThemeProvider({
-                                  children,
-                                  defaultTheme = 'system',
-                                  storageKey = 'vite-ui-theme',
-                                  ...props
-                              }: ThemeProviderProps) {
-    const [theme, _setTheme] = useState<Theme>(
-        () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-    )
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+    const [theme, setTheme] = useState<Theme>('system'); // Default to system
 
     useEffect(() => {
-        const root = window.document.documentElement
-        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-        const applyTheme = (theme: Theme) => {
-            root.classList.remove('light', 'dark') // Remove existing theme classes
-            const systemTheme = mediaQuery.matches ? 'dark' : 'light'
-            const effectiveTheme = theme === 'system' ? systemTheme : theme
-            root.classList.add(effectiveTheme) // Add the new theme class
-        }
-
-        const handleChange = () => {
-            if (theme === 'system') {
-                applyTheme('system')
+        // Load theme from localStorage
+        if (typeof window !== 'undefined') {
+            const storedTheme = localStorage.getItem('theme') as Theme | null;
+            if (storedTheme && ['light', 'dark', 'system'].includes(storedTheme)) {
+                setTheme(storedTheme);
             }
         }
+    }, []);
 
-        applyTheme(theme)
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
 
-        mediaQuery.addEventListener('change', handleChange)
+        const applyTheme = () => {
+            const root = document.documentElement;
+            if (theme === 'system') {
+                const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                root.classList.remove('light', 'dark');
+                root.classList.add(systemTheme);
+            } else {
+                root.classList.remove('light', 'dark');
+                root.classList.add(theme);
+            }
+        };
 
-        return () => mediaQuery.removeEventListener('change', handleChange)
-    }, [theme])
+        applyTheme();
 
-    const setTheme = (theme: Theme) => {
-        localStorage.setItem(storageKey, theme)
-        _setTheme(theme)
-    }
+        // Listen for system theme changes if theme is 'system'
+        if (theme === 'system') {
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+            const handleChange = () => applyTheme();
+            mediaQuery.addEventListener('change', handleChange);
+            return () => mediaQuery.removeEventListener('change', handleChange);
+        }
+    }, [theme]);
 
-    const value = {
-        theme,
-        setTheme,
-    }
+    const updateTheme = (newTheme: Theme) => {
+        setTheme(newTheme);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('theme', newTheme);
+        }
+    };
 
     return (
-        <ThemeProviderContext.Provider {...props} value={value}>
+        <ThemeContext.Provider value={{ theme, setTheme: updateTheme }}>
             {children}
-        </ThemeProviderContext.Provider>
-    )
+        </ThemeContext.Provider>
+    );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const useTheme = () => {
-    const context = useContext(ThemeProviderContext)
-
-    if (context === undefined)
-        throw new Error('useTheme must be used within a ThemeProvider')
-
-    return context
+export function useTheme() {
+    const context = useContext(ThemeContext);
+    if (!context) {
+        throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
 }
