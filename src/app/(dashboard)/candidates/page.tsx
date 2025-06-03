@@ -50,10 +50,12 @@ export default function CandidatesPage() {
 
     if (isLoading) {
         return (
-            <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                    <Spinner key={i} />
-                ))}
+            <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gray-100 z-50">
+                <div className="space-y-4 flex flex-col items-center justify-center">
+                    <div className="flex items-center justify-center mr-28">
+                        <Spinner className="w-96 mx-auto" />
+                    </div>
+                </div>
             </div>
         );
     }
