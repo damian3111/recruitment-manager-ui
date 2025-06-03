@@ -40,7 +40,7 @@ export type JobFilter = {
     experience_level?: string;
     skills?: { name: string; proficiencyLevel: string }[];
 }
-const BACKEND_URL = process.env.BACKEND_URL;
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const API_URL = `${BACKEND_URL}/jobs`;
 
@@ -70,6 +70,8 @@ export const useFilteredJobs = (filter: JobFilter, page = 0, size = 10) => {
     return useQuery({
         queryKey: ['filteredJobs', filter, page, size],
         queryFn: async () => {
+            console.log(API_URL);
+            console.log(BACKEND_URL);
             const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
             return res.data; // zakładamy Page<Job>
         },

@@ -1,35 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
+import cookieCutter from 'cookie-cutter'
 
 const publicRoutes = ['/login', '/register']
 
 export default async function middleware(req: NextRequest) {
-    const path = req.nextUrl.pathname
+    const path = req.nextUrl.pathname;
     const isPublicRoute = publicRoutes.includes(path);
     const secret = Buffer.from(process.env.JWT_SECRET!, 'base64');
-    let payload;
+    let myCookieName1 = req.cookies.get('myCookieName');
 
-    console.log(secret);
+    // Log all cookies and request headers for debugging
+    // console.log("All cookies:", req.cookies.getAll());
+    // console.log("Request headers:", Object.fromEntries(req.headers));
+    console.log(myCookieName1);
+    // console.log(req);
+    console.log("req.headers");
+    console.log(req.headers);
+    // const token = req.cookies.get("authToken")?.value ?? "";
     const token = req.cookies.get("authToken")?.value ?? "";
+    console.log("Cookies:", req.cookies.getAll());
 
-    console.log(token);
     if (isPublicRoute) {
+        console.log("Public route accessed:", path);
         return NextResponse.next();
+    }
+
+    if (!token) {
+        console.log("No authToken cookie found, redirecting to /login");
+        return NextResponse.redirect(new URL('/login', req.url));
     }
 
     try {
         const jwtVerifyRes = await jwtVerify(token, secret);
-        payload = jwtVerifyRes.payload;
-        console.log("Token verified. Payload:", payload)
-    } catch (error) {
-        console.log("Invalid token:", error)
-        return NextResponse.redirect(new URL('/login', req.url))
-    }
+        const payload = jwtVerifyRes.payload;
+        console.log("Token verified. Payload:", payload);
 
-    if (!payload.exp || Math.ceil(Date.now() / 1000) > payload.exp) {
-        return NextResponse.redirect(new URL('/login', req.url))
+        if (!payload.exp || Math.ceil(Date.now() / 1000) > payload.exp) {
+            console.log("Token expired, redirecting to /login");
+            return NextResponse.redirect(new URL('/login', req.url));
+        }
+        return NextResponse.next();
+    } catch (error) {
+        console.log("Invalid token:", error);
+        return NextResponse.redirect(new URL('/login', req.url));
     }
-    return NextResponse.next();
 }
 
 export const config = {

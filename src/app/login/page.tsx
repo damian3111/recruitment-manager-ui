@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import api from "@/utils/api"; // ✅ Use the custom API client
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import { useAuthNavigation } from '@/lib/navigateWithAuth';
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -27,29 +28,33 @@ export default function LoginPage() {
     const router = useRouter();
     // const GOOGLE_AUTH_URL = `http://localhost:8080/oauth2/authorization/google`;
     const [serverError, setServerError] = useState("");
+    const navigateWithAuth = useAuthNavigation();
+
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
             try {
-                // const response = await axios.post("http://localhost:8080/api/login", data);
                 const response = await api.post("/login", data);
-
                 // Extract token
                 const token = response.data;
                 console.log("token: " + token);
-                // if (token) {
-                //     localStorage.setItem("authToken", token);
-                // }
+
+                return response.data;
             } catch (error) {
+                console.error('Login error:', error);
                 throw error;
             }
         },
-        onSuccess: () => {
+        onSuccess: (token) => {
+            // router.push('/home');
+            const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
+            document.cookie = cookieString;
             router.push('/home');
             toast.success("Login successful!");
         },
-        onError: (error) => {
-            toast.error(error?.message || "Registration failed");
-        }
+        onError: (error: any) => {
+            toast.error(error?.message || 'Login failed');
+        },
     });
 
     const handleGoogleLogin = () => {

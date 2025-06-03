@@ -12,6 +12,17 @@ const api: AxiosInstance = axios.create({
     withCredentials: true
 });
 
+// api.interceptors.request.use((config) => {
+//     const token = localStorage.getItem('authToken');
+//     console.log('Interceptor: Token from localStorage:', token);
+//     if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//         console.log('Interceptor: Added Authorization header:', `Bearer ${token}`);
+//     } else {
+//         console.log('Interceptor: No token found in localStorage');
+//     }
+//     return config;
+// });
 // Attach token only when running on the client side
 // api.interceptors.request.use(
 //     (config) => {
