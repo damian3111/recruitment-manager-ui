@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 import api from "@/utils/api"; // ✅ Use the custom API client
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useAuthNavigation } from '@/lib/navigateWithAuth';
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -28,7 +27,6 @@ export default function LoginPage() {
     const router = useRouter();
     // const GOOGLE_AUTH_URL = `http://localhost:8080/oauth2/authorization/google`;
     const [serverError, setServerError] = useState("");
-    const navigateWithAuth = useAuthNavigation();
 
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
