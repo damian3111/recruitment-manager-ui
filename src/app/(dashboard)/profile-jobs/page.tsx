@@ -16,9 +16,11 @@ import {
     useUpdateJob,
     JobType
 } from '@/lib/jobService';
-import {motion} from "framer-motion";
-import {ArrowLeft} from "lucide-react";
-import {CustomTagProps} from "rc-select/es/BaseSelect";
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { CustomTagProps } from 'rc-select/es/BaseSelect';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 // Proficiency levels from CandidateFilters
 const PROFICIENCY_LEVELS = [
@@ -139,7 +141,7 @@ const decodeSkill = (value: string) => {
 };
 
 const tagRender = (props: CustomTagProps) => {
-    const { label, onClose } = props;
+    const { value, onClose } = props;
     return (
         <div
             style={{
@@ -152,7 +154,7 @@ const tagRender = (props: CustomTagProps) => {
                 alignItems: 'center',
             }}
         >
-            <span>{label ?? 'Unknown'}</span>
+            <span>{value ?? 'Unknown'}</span>
             <span
                 onClick={onClose}
                 style={{ marginLeft: '8px', cursor: 'pointer', color: '#000000' }}
@@ -162,7 +164,6 @@ const tagRender = (props: CustomTagProps) => {
         </div>
     );
 };
-
 
 const suffix = (count: number) => (
     <span>{count}</span>
@@ -233,61 +234,53 @@ export default function JobForm() {
 
     const isSkillNode = (value: string) => !value.includes(':');
 
-    const handleSkillsChange = (selectedValues: string[]) => {
-        const expandedValues: string[] = [];
-        selectedValues.forEach((value) => {
-            if (isSkillNode(value)) {
-                expandedValues.push(value); // Add skill without proficiency
-            } else {
-                expandedValues.push(value); // Add skill with proficiency
-            }
-        });
+    const handleSkillsChange = (
+        value: string, // Single selected value (e.g., "java:Expert")
+        currentSkills: { name: string; proficiencyLevel?: string }[]
+    ): { name: string; proficiencyLevel?: string }[] => {
+        if (!value || isSkillNode(value)) {
+            // Ignore empty values or skill nodes without proficiency (e.g., "javascript")
+            return currentSkills;
+        }
 
-        const uniqueValues = Array.from(new Set(expandedValues));
-        const newSkills = uniqueValues.map(decodeSkill).filter((s) => s.name);
-        return newSkills;
+        const { name, proficiencyLevel } = decodeSkill(value);
+        if (!name || !proficiencyLevel) {
+            return currentSkills;
+        }
+
+        // Remove any existing skill with the same name to enforce single proficiency
+        const updatedSkills = currentSkills.filter((s) => s.name !== name);
+        updatedSkills.push({ name, proficiencyLevel });
+        return updatedSkills;
     };
 
     const handleSelect = (
-        values: string[], // Changed from string to string[]
-        currentSkills: { name: string; proficiencyLevel?: string }[],
-    ) => {
-        let updatedSkills = [...currentSkills];
+        value: string, // Single selected value (e.g., "java:Expert")
+        currentSkills: { name: string; proficiencyLevel?: string }[]
+    ): { name: string; proficiencyLevel?: string }[] => {
+        if (isSkillNode(value)) {
+            // Ignore skill nodes without proficiency (e.g., "javascript")
+            return currentSkills;
+        }
 
-        values.forEach((value) => {
-            const { name, proficiencyLevel } = decodeSkill(value);
-            if (!name) return; // Skip invalid skills
+        const { name, proficiencyLevel } = decodeSkill(value);
+        if (!name || !proficiencyLevel) {
+            return currentSkills;
+        }
 
-            // Remove any existing entry for this skill
-            updatedSkills = updatedSkills.filter((s) => s.name !== name);
-
-            // Add new entry
-            updatedSkills.push({ name, proficiencyLevel });
-        });
-
+        // Remove any existing skill with the same name
+        const updatedSkills = currentSkills.filter((s) => s.name !== name);
+        // Add new skill with proficiency
+        updatedSkills.push({ name, proficiencyLevel });
         return updatedSkills;
     };
-    const handleDeselect = (
-        values: string[], // Changed from string to string[]
-        currentSkills: { name: string; proficiencyLevel?: string }[], // Corrected type
-    ) => {
-        let updatedSkills = [...currentSkills];
 
-        values.forEach((value) => {
-            if (isSkillNode(value)) {
-                // Remove skill node (e.g., 'javascript')
-                updatedSkills = updatedSkills.filter((s) => s.name !== value);
-            } else {
-                // Remove specific proficiency (e.g., 'javascript:Beginner')
-                const { name, proficiencyLevel } = decodeSkill(value);
-                updatedSkills = updatedSkills.filter(
-                    (s) =>
-                        !(s.name === name && s.proficiencyLevel === proficiencyLevel),
-                );
-            }
-        });
-
-        return updatedSkills;
+    const handleDeselect = (value: string, currentSkills: { name: string; proficiencyLevel?: string }[]) => {
+        if (isSkillNode(value)) {
+            return currentSkills.filter((s) => s.name !== value);
+        }
+        const { name, proficiencyLevel } = decodeSkill(value);
+        return currentSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel);
     };
 
     const onSubmit = (data: JobFormType) => {
@@ -323,204 +316,258 @@ export default function JobForm() {
     };
 
     return (
-        <div className="w-full min-h-screen bg-gray-50 p-10">
-            <div className="max-w-7xl mx-auto bg-white shadow-xl rounded-2xl p-10">
-                <div className="flex items-center gap-4 mb-8">
-                    <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => router.back()}
-                        aria-label="Go back to previous page"
-                        className="p-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-300 shadow-sm"
-                    >
-                        <ArrowLeft className="h-6 w-6 text-gray-700" />
-                    </motion.button>
+        <div className="">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                className="max-w-[74rem] mx-auto px-4 py-6"
+            >
+                <Card className="relative w-full p-12 rounded-3xl shadow-xl border border-gray-200 bg-white hover:shadow-2xl transition-all duration-300">
+                    <div className="absolute top-6 left-6">
+                        <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => router.back()}
+                            aria-label="Go back to previous page"
+                            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors duration-300 shadow-sm"
+                        >
+                            <ArrowLeft className="h-6 w-6 text-gray-700" />
+                        </motion.button>
+                    </div>
 
-                    <h1 className="text-3xl font-bold text-gray-800">Post a New Job</h1>
-                </div>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-                    <TextField
-                        label="Job Title"
-                        {...register('title')}
-                        error={errors.title?.message}
-                    />
-                    <TextAreaField
-                        label="Description"
-                        {...register('description')}
-                        error={errors.description?.message}
-                    />
-                    <TextAreaField
-                        label="Requirements"
-                        {...register('requirements')}
-                        error={errors.requirements?.message}
-                    />
-                    <TextAreaField
-                        label="Responsibilities"
-                        {...register('responsibilities')}
-                        error={errors.responsibilities?.message}
-                    />
-                    {/*<TextField*/}
-                    {/*    label="Employment Type (Full-time, Part-time...)"*/}
-                    {/*    {...register('employment_type')}*/}
-                    {/*    error={errors.employment_type?.message}*/}
-                    {/*/>*/}
-                    <div>
-                        <Label htmlFor="employment_type" className="block text-sm font-medium text-gray-700 mb-1">
-                            Employment Type
-                        </Label>
-                        <select
-                            {...register('employment_type')}
-                            className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                    <CardContent className="p-6 space-y-6">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.4, delay: 0.1 }}
+                            className="bg-gradient-to-r from-teal-50 to-gray-50 p-6 rounded-xl"
                         >
-                            <option value="Full-time">Full-time</option>
-                            <option value="Part-time">Part-time</option>
-                            <option value="Contract">Contract</option>
-                            <option value="Temporary">Temporary</option>
-                            <option value="Internship">Internship</option>
-                        </select>
-                        {errors.employment_type && (
-                            <p className="text-red-500 text-sm mt-1">{errors.employment_type.message}</p>
-                        )}
-                    </div>
-                    <div>
-                        <Label htmlFor="employment_mode" className="block text-sm font-medium text-gray-700 mb-1">
-                            Employment Mode
-                        </Label>
-                        <select
-                            {...register('employment_mode')}
-                            className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">Post a New Job</h1>
+                            <p className="text-lg text-gray-600 mt-2">Create a job listing to attract the best talent</p>
+                        </motion.div>
+
+                        <motion.form
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="space-y-6"
                         >
-                            <option value="Onsite">Onsite</option>
-                            <option value="Remote">Remote</option>
-                            <option value="Hybrid">Hybrid</option>
-                        </select>
-                        {errors.employment_mode && (
-                            <p className="text-red-500 text-sm mt-1">{errors.employment_mode.message}</p>
-                        )}
-                    </div>
-                    <TextField
-                        label="Location"
-                        {...register('location')}
-                        error={errors.location?.message}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <TextField
-                            label="Salary Min"
-                            type="number"
-                            {...register('salary_min')}
-                            error={errors.salary_min?.message}
-                        />
-                        <TextField
-                            label="Salary Max"
-                            type="number"
-                            {...register('salary_max')}
-                            error={errors.salary_max?.message}
-                        />
-                    </div>
-                    <TextField
-                        label="Currency (e.g. USD, EUR, PLN)"
-                        {...register('currency')}
-                        error={errors.currency?.message}
-                    />
-                    <div>
-                        <Label htmlFor="experience_level" className="block text-sm font-medium text-gray-700 mb-1">
-                            Employment Mode
-                        </Label>
-                        <select
-                            {...register('experience_level')}
-                            className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-                        >
-                            <option value="Junior">Junior</option>
-                            <option value="Mid">Mid</option>
-                            <option value="Senior">Senior</option>
-                            <option value="Lead">Lead</option>
-                        </select>
-                        {errors.experience_level && (
-                            <p className="text-red-500 text-sm mt-1">{errors.experience_level.message}</p>
-                        )}
-                    </div>
-                    {/*<TextField*/}
-                    {/*    label="Experience Level (Entry, Mid, Senior...)"*/}
-                    {/*    {...register('experience_level')}*/}
-                    {/*    error={errors.experience_level?.message}*/}
-                    {/*/>*/}
-                    <TextField
-                        label="Industry"
-                        {...register('industry')}
-                        error={errors.industry?.message}
-                    />
-                    <TextField
-                        label="Company Name"
-                        {...register('company_name')}
-                        error={errors.company_name?.message}
-                    />
-                    <TextAreaField
-                        label="Benefits (Optional)"
-                        {...register('benefits')}
-                        error={errors.benefits?.message}
-                    />
-                    <div>
-                        <Label htmlFor="skills" className="block text-sm font-medium text-gray-700 mb-1">
-                            Required Skills
-                        </Label>
-                        <Controller
-                            name="skills"
-                            control={control}
-                            render={({ field }) => (
-                                <AntTreeSelect
-                                    id="skills"
-                                    treeData={treeData}
-                                    value={
-                                        field.value?.filter((s) => s.name).map((s) => encodeSkill(s.name, s.proficiencyLevel)) || []
-                                    }
-                                    onChange={(selectedValues) => {
-                                        const newSkills = handleSkillsChange(selectedValues);
-                                        field.onChange(newSkills);
-                                    }}
-                                    onSelect={(value) => {
-                                        const newSkills = handleSelect(value, field.value || []);
-                                        field.onChange(newSkills);
-                                    }}
-                                    onDeselect={(value) => {
-                                        const newSkills = handleDeselect(value, field.value || []);
-                                        field.onChange(newSkills);
-                                    }}
-                                    tagRender={tagRender}
-                                    multiple
-                                    style={{ width: '100%' }}
-                                    suffixIcon={suffix(skills?.length || 0)}
-                                    treeCheckable
-                                    placeholder="Select required skills with or without proficiency"
-                                    showCheckedStrategy={AntTreeSelect.SHOW_CHILD}
-                                    className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
-                                    dropdownStyle={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb' }}
-                                    treeNodeLabelProp="title"
-                                    filterTreeNode={(input: string, treeNode: any) =>
-                                        treeNode.title.toLowerCase().includes(input.toLowerCase())
-                                    }
+                            <div>
+                                <Label htmlFor="title" className="block text-base font-semibold text-gray-900 mb-2">Job Title</Label>
+                                <TextField
+                                    id="title"
+                                    {...register('title')}
+                                    error={errors.title?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
                                 />
-                            )}
-                        />
-                        {errors.skills && (
-                            <p className="text-red-500 text-sm mt-1">{errors.skills.message}</p>
-                        )}
-                    </div>
-                    <div className="text-right">
-                        <button
-                            type="submit"
-                            disabled={createJob.isPending || updateJob.isPending}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-semibold"
-                        >
-                            {createJob.isPending || updateJob.isPending ? 'Submitting...' : 'Post Job'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <ConfirmModal
-                open={showConfirm}
-                onCancel={() => setShowConfirm(false)}
-                onConfirm={confirmAction}
-            />
+                            </div>
+                            <div>
+                                <Label htmlFor="description" className="block text-base font-semibold text-gray-900 mb-2">Description</Label>
+                                <TextAreaField
+                                    id="description"
+                                    {...register('description')}
+                                    error={errors.description?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="requirements" className="block text-base font-semibold text-gray-900 mb-2">Requirements</Label>
+                                <TextAreaField
+                                    id="requirements"
+                                    {...register('requirements')}
+                                    error={errors.requirements?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="responsibilities" className="block text-base font-semibold text-gray-900 mb-2">Responsibilities</Label>
+                                <TextAreaField
+                                    id="responsibilities"
+                                    {...register('responsibilities')}
+                                    error={errors.responsibilities?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="employment_type" className="block text-base font-semibold text-gray-900 mb-2">Employment Type</Label>
+                                <select
+                                    id="employment_type"
+                                    {...register('employment_type')}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                >
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Temporary">Temporary</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
+                                {errors.employment_type && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.employment_type.message}</p>
+                                )}
+                            </div>
+                            <div>
+                                <Label htmlFor="employment_mode" className="block text-base font-semibold text-gray-900 mb-2">Employment Mode</Label>
+                                <select
+                                    id="employment_mode"
+                                    {...register('employment_mode')}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                >
+                                    <option value="Onsite">Onsite</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                </select>
+                                {errors.employment_mode && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.employment_mode.message}</p>
+                                )}
+                            </div>
+                            <div>
+                                <Label htmlFor="location" className="block text-base font-semibold text-gray-900 mb-2">Location</Label>
+                                <TextField
+                                    id="location"
+                                    {...register('location')}
+                                    error={errors.location?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="salary_min" className="block text-base font-semibold text-gray-900 mb-2">Salary Minimum</Label>
+                                    <TextField
+                                        id="salary_min"
+                                        type="number"
+                                        {...register('salary_min')}
+                                        error={errors.salary_min?.message}
+                                        className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="salary_max" className="block text-base font-semibold text-gray-900 mb-2">Salary Maximum</Label>
+                                    <TextField
+                                        id="salary_max"
+                                        type="number"
+                                        {...register('salary_max')}
+                                        error={errors.salary_max?.message}
+                                        className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <Label htmlFor="currency" className="block text-base font-semibold text-gray-900 mb-2">Currency</Label>
+                                <TextField
+                                    id="currency"
+                                    {...register('currency')}
+                                    error={errors.currency?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="experience_level" className="block text-base font-semibold text-gray-900 mb-2">Experience Level</Label>
+                                <select
+                                    id="experience_level"
+                                    {...register('experience_level')}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                >
+                                    <option value="Junior">Junior</option>
+                                    <option value="Mid">Mid</option>
+                                    <option value="Senior">Senior</option>
+                                    <option value="Lead">Lead</option>
+                                </select>
+                                {errors.experience_level && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.experience_level.message}</p>
+                                )}
+                            </div>
+                            <div>
+                                <Label htmlFor="industry" className="block text-base font-semibold text-gray-900 mb-2">Industry</Label>
+                                <TextField
+                                    id="industry"
+                                    {...register('industry')}
+                                    error={errors.industry?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="company_name" className="block text-base font-semibold text-gray-900 mb-2">Company Name</Label>
+                                <TextField
+                                    id="company_name"
+                                    {...register('company_name')}
+                                    error={errors.company_name?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="benefits" className="block text-base font-semibold text-gray-900 mb-2">Benefits (Optional)</Label>
+                                <TextAreaField
+                                    id="benefits"
+                                    {...register('benefits')}
+                                    error={errors.benefits?.message}
+                                    className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                />
+                            </div>
+                            <div>
+                                <Label htmlFor="skills" className="block text-base font-semibold text-gray-900 mb-2">Required Skills</Label>
+                                <Controller
+                                    name="skills"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <AntTreeSelect
+                                            id="skills"
+                                            treeData={treeData}
+                                            // @ts-ignore
+                                            value={
+                                                field.value?.filter((s) => s.name).map((s) => encodeSkill(s.name, s.proficiencyLevel)) || []
+                                            }
+                                            onChange={(value: string) => {
+                                                const newSkills = handleSkillsChange(value, field.value || []);
+                                                field.onChange(newSkills);
+                                            }}
+                                            onSelect={(value: string) => {
+                                                const newSkills = handleSelect(value, field.value || []);
+                                                field.onChange(newSkills);
+                                            }}
+                                            onDeselect={(value) => {
+                                                const newSkills = handleDeselect(value, field.value || []);
+                                                field.onChange(newSkills);
+                                            }}
+                                            tagRender={tagRender}
+                                            multiple
+                                            style={{ width: '100%' }}
+                                            suffixIcon={suffix(skills?.length || 0)}
+                                            treeCheckable
+                                            placeholder="Select required skills with or without proficiency"
+                                            showCheckedStrategy={AntTreeSelect.SHOW_CHILD}
+                                            className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
+                                            dropdownStyle={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb' }}
+                                            treeNodeLabelProp="title"
+                                            filterTreeNode={(input: string, treeNode: any) =>
+                                                treeNode.title.toLowerCase().includes(input.toLowerCase())
+                                            }
+                                        />
+                                    )}
+                                />
+                                {errors.skills && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.skills.message}</p>
+                                )}
+                            </div>
+                            <div className="text-right">
+                                <Button
+                                    type="submit"
+                                    disabled={createJob.isPending || updateJob.isPending}
+                                    className="px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-300 shadow-sm hover:shadow-md text-base font-semibold"
+                                >
+                                    {createJob.isPending || updateJob.isPending ? 'Submitting...' : 'Post Job'}
+                                </Button>
+                            </div>
+                        </motion.form>
+                    </CardContent>
+                </Card>
+                <ConfirmModal
+                    open={showConfirm}
+                    onCancel={() => setShowConfirm(false)}
+                    onConfirm={confirmAction}
+                />
+            </motion.div>
         </div>
     );
 }
