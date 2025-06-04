@@ -40,15 +40,13 @@ export type JobFilter = {
     experience_level?: string;
     skills?: { name: string; proficiencyLevel: string }[];
 }
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-const API_URL = `${BACKEND_URL}/jobs`;
+const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/jobs`;
 
 export const useJobs = () => {
     return useQuery<JobType[]>({
         queryKey: ['jobs'],
         queryFn: async () => {
-            const res = await axios.get(`${BACKEND_URL}/jobs`);
+            const res = await axios.get(`${API_URL}`);
             return res.data;
         },
         staleTime: 1000 * 60,
@@ -70,8 +68,6 @@ export const useFilteredJobs = (filter: JobFilter, page = 0, size = 10) => {
     return useQuery({
         queryKey: ['filteredJobs', filter, page, size],
         queryFn: async () => {
-            console.log(API_URL);
-            console.log(BACKEND_URL);
             const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
             return res.data; // zakładamy Page<Job>
         },
@@ -83,7 +79,7 @@ export const useJobsByUser = (userId: number) => {
     return useQuery<JobType[]>({
         queryKey: ['jobs', userId],
         queryFn: async () => {
-            const res = await axios.get(`${BACKEND_URL}/jobs/user/${userId}`);
+            const res = await axios.get(`${API_URL}/user/${userId}`);
             return res.data;
         },
         enabled: !!userId, // only run if userId is provided

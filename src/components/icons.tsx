@@ -64,13 +64,12 @@ type SpinnerProps = {
     className?: string;
 };
 
+// components/Spinner.tsx
 export function Spinner({ className }: SpinnerProps) {
     return (
-        <div
-            className={`absolute right-0 top-0 bottom-0 flex items-center justify-center ${className ?? ''}`}
-        >
+        <div className={`flex items-center justify-center ${className ?? ''}`}>
             <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-700"
+                className="animate-spin h-10 w-10 text-gray-700" // Increased size from h-5 w-5 to h-16 w-16 (64px)
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"

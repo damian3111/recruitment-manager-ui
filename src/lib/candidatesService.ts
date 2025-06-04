@@ -46,10 +46,8 @@ export type CandidateFilter = {
     location?: string;
     skills?: { name: string; proficiencyLevel?: string }[];
 };
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-const API_URL = `${BACKEND_URL}/candidates`;
-const LOGOUT_URL = `${BACKEND_URL}`;
+const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/candidates`;
+const LOGOUT_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}`;
 
 export const useCandidates = () => {
     return useQuery<CandidateType[]>({
@@ -133,6 +131,7 @@ export const useLogout = () => {
     return useMutation({
         mutationFn: async () => {
             await axios.post(`${LOGOUT_URL}/logout2`);
+            document.cookie = `authToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
         },
         onSuccess: () => {
             toast.success("Logout successful!");
