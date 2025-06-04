@@ -31,7 +31,7 @@ export default function LoginPage() {
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
             try {
-                const response = await api.post("/login", data);
+                const response = await api.post("/api/auth/login", data);
                 // Extract token
                 const token = response.data;
                 console.log("token: " + token);
@@ -44,7 +44,7 @@ export default function LoginPage() {
         },
         onSuccess: (token) => {
             // router.push('/home');
-            const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+            const expires = new Date(Date.now() + 3600000); // 24 hours
             const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
             document.cookie = cookieString;
             router.push('/home');
