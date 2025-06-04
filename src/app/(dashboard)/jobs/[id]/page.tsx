@@ -86,7 +86,7 @@ export default function JobDetailPage() {
         return notFound();
     }
 
-    const skills = SAMPLE_SKILLS;
+    const skills = !job?.skills || job?.skills.length === 0 ? SAMPLE_SKILLS : job?.skills;
 
     return (
         <div >
