@@ -83,8 +83,7 @@ export default function CandidateDetailPage() {
         );
     }
 
-    // Use SAMPLE_SKILLS as specified
-    const skills = SAMPLE_SKILLS;
+    const skills = !candidate?.skills || candidate?.skills.length === 0 ? SAMPLE_SKILLS : candidate?.skills;
 
     return (
         <motion.div
@@ -260,7 +259,7 @@ export default function CandidateDetailPage() {
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: 0.2, delay: 0.9 + index * 0.05 }}
-                                    className={`px-3 py-1 ${getProficiencyColor(skill.proficiencyLevel)} rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition-all duration-300`}
+                                    className={`px-3 py-1 ${getProficiencyColor(skill.proficiencyLevel ?? '')} rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition-all duration-300`}
                                 >
                                     {skill.name}: {skill.proficiencyLevel}
                                 </motion.span>
