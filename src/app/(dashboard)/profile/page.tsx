@@ -3,7 +3,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -32,6 +32,7 @@ import TextField from '@/components/TextField';
 import TextAreaField from '@/components/TextAreaField';
 import RoleBasedAccessDeniedPage from '@/components/RoleBasedAccessDeniedPage';
 import {CustomTagProps} from "rc-select/es/BaseSelect";
+import {Spinner} from "@/components/icons";
 
 // Proficiency levels from CandidateFilters
 const PROFICIENCY_LEVELS = [
@@ -248,66 +249,55 @@ export default function CandidateForm() {
         return PROFICIENCY_LEVELS.map((prof) => encodeSkill(skillValue, prof.value));
     };
 
-    const handleSkillsChange = (selectedValues: string[]) => {
-        const expandedValues: string[] = [];
-        selectedValues.forEach((value) => {
-            if (isSkillNode(value)) {
-                expandedValues.push(value); // Add skill without proficiency
-            } else {
-                expandedValues.push(value); // Add skill with proficiency
-            }
-        });
+    const handleSkillsChange = (
+        value: string, // Single selected value (e.g., "java:Expert")
+        currentSkills: { name: string; proficiencyLevel?: string }[]
+    ): { name: string; proficiencyLevel?: string }[] => {
+        if (!value || isSkillNode(value)) {
+            // Ignore empty values or skill nodes without proficiency (e.g., "javascript")
+            return currentSkills;
+        }
 
-        const uniqueValues = Array.from(new Set(expandedValues));
-        const newSkills = uniqueValues.map(decodeSkill).filter((s) => s.name);
+        const { name, proficiencyLevel } = decodeSkill(value);
+        if (!name || !proficiencyLevel) {
+            return currentSkills;
+        }
 
-        return newSkills // Limit to 3 skills
+        // Remove any existing skill with the same name to enforce single proficiency
+        const updatedSkills = currentSkills.filter((s) => s.name !== name);
+        updatedSkills.push({ name, proficiencyLevel });
+        return updatedSkills;
     };
 
     const handleSelect = (
-        values: string[], // Changed from string to string[]
-        currentSkills: { name: string; proficiencyLevel?: string }[],
-    ) => {
-        let updatedSkills = [...currentSkills];
+        value: string, // Single selected value (e.g., "java:Expert")
+        currentSkills: { name: string; proficiencyLevel?: string }[]
+    ): { name: string; proficiencyLevel?: string }[] => {
+        if (isSkillNode(value)) {
+            // Ignore skill nodes without proficiency (e.g., "javascript")
+            return currentSkills;
+        }
 
-        values.forEach((value) => {
-            const { name, proficiencyLevel } = decodeSkill(value);
-            if (!name) return;
+        const { name, proficiencyLevel } = decodeSkill(value);
+        if (!name || !proficiencyLevel) {
+            return currentSkills;
+        }
 
-            // Remove any existing entry for this skill
-            updatedSkills = updatedSkills.filter((s) => s.name !== name);
-
-            // Add new entry
-            updatedSkills.push({ name, proficiencyLevel });
-        });
-
-        // Enforce max 3 skills
-        return updatedSkills.slice(0, 3);
-    };
-
-    // Updated handleDeselect to accept string[]
-    const handleDeselect = (
-        values: string[], // Changed from string to string[]
-        currentSkills: { name: string; proficiencyLevel?: string }[],
-    ) => {
-        let updatedSkills = [...currentSkills];
-
-        values.forEach((value) => {
-            if (isSkillNode(value)) {
-                // Remove skill node (e.g., 'javascript')
-                updatedSkills = updatedSkills.filter((s) => s.name !== value);
-            } else {
-                // Remove specific proficiency (e.g., 'javascript:Beginner')
-                const { name, proficiencyLevel } = decodeSkill(value);
-                updatedSkills = updatedSkills.filter(
-                    (s) =>
-                        !(s.name === name && s.proficiencyLevel === proficiencyLevel),
-                );
-            }
-        });
-
+        // Remove any existing skill with the same name
+        const updatedSkills = currentSkills.filter((s) => s.name !== name);
+        // Add new skill with proficiency
+        updatedSkills.push({ name, proficiencyLevel });
         return updatedSkills;
     };
+
+    const handleDeselect = (value: string, currentSkills: { name: string; proficiencyLevel?: string }[]) => {
+        if (isSkillNode(value)) {
+            return currentSkills.filter((s) => s.name !== value);
+        }
+        const { name, proficiencyLevel } = decodeSkill(value);
+        return currentSkills.filter((s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel);
+    };
+
 
     useEffect(() => {
         if (user) {
@@ -410,9 +400,20 @@ export default function CandidateForm() {
         }
     };
 
-    if (user?.userRole !== 'recruited') {
-        return <RoleBasedAccessDeniedPage role="candidates" />;
+
+    if (user && user?.userRole !== 'recruited') {
+        return <RoleBasedAccessDeniedPage role="recruiters" />;
     }
+    if (isLoading || !candidate) {
+        return    <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gray-100 z-50">
+            <div className="space-y-4 flex flex-col items-center justify-center">
+                <div className="flex items-center justify-center mr-28">
+                    <Spinner className="w-96 mx-auto" />
+                </div>
+            </div>
+        </div>
+    }
+
 
     return (
         <div className="">
@@ -458,7 +459,6 @@ export default function CandidateForm() {
                                     <Label htmlFor="first_name" className="block text-base font-semibold text-gray-900 mb-2">First Name</Label>
                                     <TextField
                                         id="first_name"
-                                        label="First Name"
                                         {...register('first_name')}
                                         error={errors.first_name?.message}
                                         disabled
@@ -469,7 +469,6 @@ export default function CandidateForm() {
                                     <Label htmlFor="last_name" className="block text-base font-semibold text-gray-900 mb-2">Last Name</Label>
                                     <TextField
                                         id="last_name"
-                                        label="Last Name"
                                         {...register('last_name')}
                                         error={errors.last_name?.message}
                                         disabled
@@ -482,7 +481,6 @@ export default function CandidateForm() {
                                     <Label htmlFor="email" className="block text-base font-semibold text-gray-900 mb-2">Email</Label>
                                     <TextField
                                         id="email"
-                                        label="Email"
                                         type="email"
                                         {...register('email')}
                                         error={errors.email?.message}
@@ -494,7 +492,6 @@ export default function CandidateForm() {
                                     <Label htmlFor="phone" className="block text-base font-semibold text-gray-900 mb-2">Phone</Label>
                                     <TextField
                                         id="phone"
-                                        label="Phone Number"
                                         {...register('phone')}
                                         error={errors.phone?.message}
                                         className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -506,7 +503,6 @@ export default function CandidateForm() {
                                     <Label htmlFor="profile_picture_url" className="block text-base font-semibold text-gray-900 mb-2">Profile Picture URL</Label>
                                     <TextField
                                         id="profile_picture_url"
-                                        label="Profile Picture"
                                         {...register('profile_picture_url')}
                                         error={errors.profile_picture_url?.message}
                                         className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -516,7 +512,6 @@ export default function CandidateForm() {
                                     <Label htmlFor="headline" className="block text-base font-semibold text-gray-900 mb-2">Headline</Label>
                                     <TextField
                                         id="headline"
-                                        label="Headline"
                                         {...register('headline')}
                                         error={errors.headline?.message}
                                         placeholder="e.g., Full Stack Developer"
@@ -528,7 +523,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="summary" className="block text-base font-semibold text-gray-900 mb-2">Summary</Label>
                                 <TextAreaField
                                     id="summary"
-                                    label="Summary"
                                     {...register('summary')}
                                     error={errors.summary?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -538,7 +532,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="experience" className="block text-base font-semibold text-gray-900 mb-2">Experience</Label>
                                 <TextAreaField
                                     id="experience"
-                                    label="Experience"
                                     {...register('experience')}
                                     error={errors.experience?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -548,7 +541,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="years_of_experience" className="block text-base font-semibold text-gray-900 mb-2">Years of Experience</Label>
                                 <TextField
                                     id="years_of_experience"
-                                    label="Years of Experience"
                                     type="number"
                                     {...register('years_of_experience', { valueAsNumber: true })}
                                     error={errors.years_of_experience?.message}
@@ -559,7 +551,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="education" className="block text-base font-semibold text-gray-900 mb-2">Education</Label>
                                 <TextAreaField
                                     id="education"
-                                    label="Education"
                                     {...register('education')}
                                     error={errors.education?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -569,7 +560,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="certifications" className="block text-base font-semibold text-gray-900 mb-2">Certifications</Label>
                                 <TextAreaField
                                     id="certifications"
-                                    label="Certifications"
                                     {...register('certifications')}
                                     error={errors.certifications?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -579,7 +569,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="work_experiences" className="block text-base font-semibold text-gray-900 mb-2">Work Experiences</Label>
                                 <TextAreaField
                                     id="work_experiences"
-                                    label="Work Experience"
                                     {...register('work_experiences')}
                                     error={errors.work_experiences?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -589,7 +578,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="projects" className="block text-base font-semibold text-gray-900 mb-2">Projects</Label>
                                 <TextAreaField
                                     id="projects"
-                                    label="Projects"
                                     {...register('projects')}
                                     error={errors.projects?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -599,7 +587,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="media_url" className="block text-base font-semibold text-gray-900 mb-2">Media URL</Label>
                                 <TextField
                                     id="media_url"
-                                    label="Media URL"
                                     {...register('media_url')}
                                     error={errors.media_url?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -609,7 +596,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="salary_expectation" className="block text-base font-semibold text-gray-900 mb-2">Salary Expectation</Label>
                                 <TextField
                                     id="salary_expectation"
-                                    label="Salary Expectations"
                                     {...register('salary_expectation')}
                                     error={errors.salary_expectation?.message}
                                     placeholder="e.g., 5000 EUR/month"
@@ -662,7 +648,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="applied_date" className="block text-base font-semibold text-gray-900 mb-2">Applied Date</Label>
                                 <TextField
                                     id="applied_date"
-                                    label="Applied Date"
                                     type="date"
                                     {...register('applied_date')}
                                     error={errors.applied_date?.message}
@@ -673,7 +658,6 @@ export default function CandidateForm() {
                                 <Label htmlFor="location" className="block text-base font-semibold text-gray-900 mb-2">Location</Label>
                                 <TextField
                                     id="location"
-                                    label="Location"
                                     {...register('location')}
                                     error={errors.location?.message}
                                     className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -688,14 +672,15 @@ export default function CandidateForm() {
                                         <AntTreeSelect
                                             id="skills"
                                             treeData={treeData}
+                                            // @ts-ignore
                                             value={
                                                 field.value?.filter((s) => s.name).map((s) => encodeSkill(s.name, s.proficiencyLevel)) || []
                                             }
-                                            onChange={(selectedValues) => {
-                                                const newSkills = handleSkillsChange(selectedValues);
+                                            onChange={(value: string) => {
+                                                const newSkills = handleSkillsChange(value, field.value || []);
                                                 field.onChange(newSkills);
                                             }}
-                                            onSelect={(value) => {
+                                            onSelect={(value: string) => {
                                                 const newSkills = handleSelect(value, field.value || []);
                                                 field.onChange(newSkills);
                                             }}
@@ -708,9 +693,9 @@ export default function CandidateForm() {
                                             style={{ width: '100%' }}
                                             suffixIcon={suffix(skills?.length || 0)}
                                             treeCheckable
-                                            placeholder="Select up to 3 IT skills with or without proficiency"
+                                            placeholder="Select required skills with or without proficiency"
                                             showCheckedStrategy={AntTreeSelect.SHOW_CHILD}
-                                            className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                                            className="w-full p-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
                                             dropdownStyle={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #e5e7eb' }}
                                             treeNodeLabelProp="title"
                                             filterTreeNode={(input: string, treeNode: any) =>

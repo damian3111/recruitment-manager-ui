@@ -9,7 +9,7 @@
 import React, { InputHTMLAttributes } from 'react';
 
 type TextFieldProps = {
-    label: string;
+    label?: string;
     error?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 

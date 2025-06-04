@@ -1,7 +1,7 @@
 import React, { TextareaHTMLAttributes } from 'react';
 
 type TextAreaFieldProps = {
-    label: string;
+    label?: string;
     error?: string;
 } & TextareaHTMLAttributes<HTMLTextAreaElement>;
 
