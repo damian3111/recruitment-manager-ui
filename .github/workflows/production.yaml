@@ -1,0 +1,49 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn' # Use 'npm' if you use npm instead of Yarn
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      # Build Next.js app
+      - name: Build
+        run: yarn build
+
+      # Run tests
+#      - name: Test
+#        run: yarn test
+#        if: ${{ success() }} # Only run tests if build succeeds
+
+      # Deploy to Vercel (optional, if auto-deploy is disabled)
+      - name: Deploy to Vercel
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' # Only run on push to main
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -d '{"gitSource": {"type": "github", "repoId": "${{ secrets.REPO_ID_GITHUB }}", "ref": "main"}}' \
+            https://api.vercel.com/v13/deployments
