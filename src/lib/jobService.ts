@@ -97,7 +97,7 @@ export const useJob = (id: number) => {
         enabled: !!id,
     });
 };
-//
+
 export const useCreateJob = () => {
     const queryClient = useQueryClient();
 
