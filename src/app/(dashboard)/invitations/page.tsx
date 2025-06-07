@@ -54,8 +54,6 @@ export default function Dashboard() {
     // let roleBasedInvites = (user?.userRole == "recruiter" ? invitesByJobUser : invitesReceivedByRecruited);
     let roleBasedInvites = invitesReceivedByRecruited;
     let allInvites = [...(invitesByJobUser ?? []), ...(invitesReceivedByRecruited ?? [])];
-    console.log("user");
-    console.log(roleBasedInvites);
 
     const { mutate } = useUpdateInviteStatus();
 
