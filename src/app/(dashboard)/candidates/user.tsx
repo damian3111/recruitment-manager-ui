@@ -50,7 +50,7 @@ export function User() {
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/settings')}>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/support')}>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
                     <DropdownMenuItem>
                         <button onClick={handleLogout}>
