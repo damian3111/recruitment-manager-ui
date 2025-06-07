@@ -86,7 +86,7 @@ export const useJobsByUser = (userId: number) => {
         staleTime: 1000 * 60,
     });
 };
-//
+
 export const useJob = (id: number) => {
     return useQuery<JobType>({
         queryKey: ['job', id],
