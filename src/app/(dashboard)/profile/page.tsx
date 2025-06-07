@@ -186,7 +186,7 @@ const candidateSchema = z.object({
     first_name: z.string().min(1, 'First name is required'),
     last_name: z.string().min(1, 'Last name is required'),
     email: z.string().email('Invalid email address'),
-    phone: z.string().optional(),
+    phone: z.string().min(9, "Phone number must be at least 9 characters"),
     profile_picture_url: z.string().url('Invalid URL').optional(),
     headline: z.string().optional(),
     summary: z.string().optional(),
@@ -404,16 +404,16 @@ export default function CandidateForm() {
     if (user && user?.userRole !== 'recruited') {
         return <RoleBasedAccessDeniedPage role="recruiters" />;
     }
-    if (isLoading || !candidate) {
-        return    <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gray-100 z-50">
-            <div className="space-y-4 flex flex-col items-center justify-center">
-                <div className="flex items-center justify-center mr-28">
-                    <Spinner className="w-96 mx-auto" />
-                </div>
-            </div>
-        </div>
-    }
-
+    // if (isLoading || !candidate) {
+    //     return    <div className="fixed inset-0 flex items-center justify-center min-h-screen bg-gray-100 z-50">
+    //         <div className="space-y-4 flex flex-col items-center justify-center">
+    //             <div className="flex items-center justify-center mr-28">
+    //                 <Spinner className="w-96 mx-auto" />
+    //             </div>
+    //         </div>
+    //     </div>
+    // }
+    //
 
     return (
         <div className="">
@@ -492,6 +492,7 @@ export default function CandidateForm() {
                                     <Label htmlFor="phone" className="block text-base font-semibold text-gray-900 mb-2">Phone</Label>
                                     <TextField
                                         id="phone"
+                                        type="number"
                                         {...register('phone')}
                                         error={errors.phone?.message}
                                         className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
@@ -596,6 +597,7 @@ export default function CandidateForm() {
                                 <Label htmlFor="salary_expectation" className="block text-base font-semibold text-gray-900 mb-2">Salary Expectation</Label>
                                 <TextField
                                     id="salary_expectation"
+                                    type="number"
                                     {...register('salary_expectation')}
                                     error={errors.salary_expectation?.message}
                                     placeholder="e.g., 5000 EUR/month"
