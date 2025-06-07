@@ -77,7 +77,7 @@ export default function SupportPage() {
     };
 
     return (
-        <div className="flex gap-8 py-8  max-w-[100em] mx-auto min-h-screen">
+        <div className="flex gap-8 py-8 px-8 max-w-[100em] min-h-screen">
             {/* Contact Form Section */}
             <motion.div
                 initial={{ opacity: 0, x: -50 }}
@@ -233,7 +233,7 @@ export default function SupportPage() {
                         asChild
                         className="px-8 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors duration-300 text-lg font-semibold shadow-md"
                     >
-                        <Link href="https://docs.recruitmentmanager.com" target="_blank">
+                        <Link href="https://docs.recruitmentmanager.com" target="_blank" className={"text-sm"}>
                             View Full Documentation
                         </Link>
                     </Button>
