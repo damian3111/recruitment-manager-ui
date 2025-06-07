@@ -130,7 +130,7 @@ export const useLogout = () => {
 
     return useMutation({
         mutationFn: async () => {
-            await axios.post(`${LOGOUT_URL}/logout2`);
+            await axios.post(`${LOGOUT_URL}/api/auth/logout`);
             document.cookie = `authToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
         },
         onSuccess: () => {
