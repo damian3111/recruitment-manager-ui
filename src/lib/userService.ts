@@ -8,6 +8,6 @@ export const useCurrentUser = () => {
       const res = await axios.get('/users/me');
       return res.data;
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 5,
   });
 };
