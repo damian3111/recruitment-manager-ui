@@ -21,13 +21,15 @@ function OAuthHandler() {
 
     useEffect(() => {
         const token = searchParams.get("token");
+        const error = searchParams.get("error");
+        if (error) {
+            toast.error(`Login failed: ${error}`);
+            return;
+        }
         if (token) {
             const expires = new Date(Date.now() + 3600000); // 1 hour expiry
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
-                process.env.NODE_ENV === "production" ? "Secure" : ""
-            }`;
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
             document.cookie = cookieString;
-
             toast.success("Google login successful!");
             router.push("/home");
         }
@@ -35,7 +37,6 @@ function OAuthHandler() {
 
     return null;
 }
-
 export default function LoginPage() {
     const {
         register,
@@ -71,7 +72,8 @@ export default function LoginPage() {
     });
 
     const handleGoogleLogin = () => {
-        window.location.href = "https://java-application-uo30.onrender.com/oauth2/authorization/google";
+        // window.location.href = "https://java-application-uo30.onrender.com/oauth2/authorization/google";
+        window.location.href = "http://localhost:8080/oauth2/authorization/google";
     }
 
     const cardVariants = {
