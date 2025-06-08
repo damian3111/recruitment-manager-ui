@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from '../utils/api';
-import {JobType} from "@/lib/jobService";
 
 export type InvitationStatus = 'sent' | 'accepted' | 'declined';
 

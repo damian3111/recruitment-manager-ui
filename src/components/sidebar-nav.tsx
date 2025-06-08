@@ -39,7 +39,6 @@ export default function SidebarNav({
 
     return (
         <>
-            {/* Mobile select menu */}
             <div className="p-2 md:hidden">
                 <Select value={val} onValueChange={handleSelect}>
                     <SelectTrigger className="h-12 sm:w-60 text-base">
@@ -58,7 +57,6 @@ export default function SidebarNav({
                 </Select>
             </div>
 
-            {/* Desktop sidebar */}
             <ScrollArea
                 type="always"
                 className={cn(

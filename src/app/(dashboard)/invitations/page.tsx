@@ -1,60 +1,38 @@
 "use client"
 import { Button } from '@/components/ui/button'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
+import {Card} from '@/components/ui/card'
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Header } from '@/components/header'
-import { Main } from '@/components/main'
-import { TopNav } from '@/components/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { Overview } from './components/overview'
-import { RecentSales } from './components/recents-sales'
 import Link from "next/link";
-import {ConfirmModal} from "@/components/ConfirmModal";
-import React, {useEffect, useState} from "react";
-import {useJobs, useJobsByUser} from "@/lib/jobService";
+import React from "react";
+import {useJobs} from "@/lib/jobService";
 import {useCurrentUser} from "@/lib/userService";
-import {useCandidateByEmail, useCandidates} from "@/lib/candidatesService";
+import {useCandidates} from "@/lib/candidatesService";
 import {
     useDeleteInvite, useInvitationsReceivedByRecruited,
-    useInvitesByCandidateAndRecruiter,
     useInvitesByJobUser,
     useInvitesByRecruiter, useUpdateInviteStatus
 } from "@/lib/invitationService";
 import {Badge} from "@/components/ui/badge";
 import toast from "react-hot-toast";
 import { AnimatePresence } from 'framer-motion';
-import {Wrench} from "lucide-react";
 import UnderConstructionPage from "@/components/UnderConstructionPage";
 
 export default function Dashboard() {
     const { data: user } = useCurrentUser()
     const { data: invites } = useInvitesByRecruiter(user?.id)
-    // const { data: jobs } = useJobsByUser(user?.id)
     const { data: jobs2 } = useJobs();
     const { data: candidates } = useCandidates()
     const { data: invitesByRecruiter, isLoading: invitesLoading } = useInvitesByRecruiter(user?.id);
     const { data: invitesByJobUser } = useInvitesByJobUser(user?.id, user?.email);
     const { data: invitesReceivedByRecruited } = useInvitationsReceivedByRecruited(user?.id, user?.email);
     const deleteInvite = useDeleteInvite();
-    const updateInviteStatus = useUpdateInviteStatus();
-
-    // if (!invitesByJobUser) return null
 
     const getJob = (jobId: number) => jobs2?.find((j) => j.id === jobId)
     const getCandidate = (candidateId: number) => candidates?.find((c) => c.id === candidateId);
-    // let roleBasedInvites = (user?.userRole == "recruiter" ? invitesByJobUser : invitesReceivedByRecruited);
-    let roleBasedInvites = invitesReceivedByRecruited;
-    let allInvites = [...(invitesByJobUser ?? []), ...(invitesReceivedByRecruited ?? [])];
 
+    let roleBasedInvites = invitesReceivedByRecruited;
     const { mutate } = useUpdateInviteStatus();
 
     const handleCancel = (jobId: number, candidateId: number) => {
@@ -69,9 +47,7 @@ export default function Dashboard() {
 
         deleteInvite.mutate(invite.id, {
             onSuccess: () => {
-                // invitesByRecruiter(prev => prev.filter(id => id !== jobId));
                 toast.success('✅ Invitation deleted!');
-                // refetch(); // jeśli potrzebne
             },
             onError: () => toast.error('❌ Failed to delete invitation.'),
         });
@@ -87,9 +63,7 @@ export default function Dashboard() {
 
         deleteInvite.mutate(invite.id, {
             onSuccess: () => {
-                // invitesByRecruiter(prev => prev.filter(id => id !== jobId));
                 toast.success('✅ Invitation deleted!');
-                // refetch(); // jeśli potrzebne
             },
             onError: () => toast.error('❌ Failed to delete invitation.'),
         });
@@ -97,17 +71,14 @@ export default function Dashboard() {
 
 
     const handleAcceptInvitation = (jobId: number, candidateId: number) => {
-        // Find the invite matching the given jobId and candidateId
         const invite = roleBasedInvites?.find(inv =>
             inv.status === 'sent' &&
             inv.job_id === jobId &&
             inv.candidate_id === candidateId
         );
 
-        // Check if invite exists
         if (!invite) return;
 
-        // Call the mutate function to accept the invitation
         mutate({
             id: invite.id,
             status: 'accepted', // Or InvitationStatus.ACCEPTED if it's an enum
@@ -152,7 +123,6 @@ export default function Dashboard() {
                         ))}
                     </TabsList>
 
-                    {/* Sent Invitations */}
                     <TabsContent value="sent" className="space-y-4">
                         <AnimatePresence>
                             <motion.div
@@ -214,7 +184,7 @@ export default function Dashboard() {
                                                                     invite.status === 'sent'
                                                                         ? 'secondary'
                                                                         : invite.status === 'accepted'
-                                                                            ? 'default' // Changed from 'success' to 'default'
+                                                                            ? 'default'
                                                                             : 'destructive'
                                                                 }
                                                                 className="px-3 py-1 text-sm"
@@ -262,7 +232,6 @@ export default function Dashboard() {
                         </AnimatePresence>
                     </TabsContent>
 
-                    {/* Received Invitations */}
                     <TabsContent value="received" className="space-y-4">
                         <AnimatePresence>
                             <motion.div
@@ -324,7 +293,7 @@ export default function Dashboard() {
                                                                     invite.status === 'sent'
                                                                         ? 'secondary'
                                                                         : invite.status === 'accepted'
-                                                                            ? 'default' // Changed from 'success' to 'default'
+                                                                            ? 'default'
                                                                             : 'destructive'
                                                                 }
                                                                 className="px-3 py-1 text-sm"
@@ -380,7 +349,6 @@ export default function Dashboard() {
                         </AnimatePresence>
                     </TabsContent>
 
-                    {/* Accepted Invitations */}
                     <TabsContent value="accepted" className="space-y-4">
                         <AnimatePresence>
                             <motion.div
@@ -442,7 +410,7 @@ export default function Dashboard() {
                                                                     invite.status === 'sent'
                                                                         ? 'secondary'
                                                                         : invite.status === 'accepted'
-                                                                            ? 'default' // Changed from 'success' to 'default'
+                                                                            ? 'default'
                                                                             : 'destructive'
                                                                 }
                                                                 className="px-3 py-1 text-sm"
@@ -490,7 +458,6 @@ export default function Dashboard() {
                         </AnimatePresence>
                     </TabsContent>
 
-                    {/* Favourite Invitations */}
                     <TabsContent value="favourite" className="space-y-4">
                         {/*<AnimatePresence>*/}
                         {/*    <motion.div*/}
@@ -514,30 +481,3 @@ export default function Dashboard() {
         </div>
     );
 }
-
-const topNav = [
-    {
-        title: 'Overview',
-        href: 'dashboard/overview',
-        isActive: true,
-        disabled: false,
-    },
-    {
-        title: 'Customers',
-        href: 'dashboard/customers',
-        isActive: false,
-        disabled: true,
-    },
-    {
-        title: 'Products',
-        href: 'dashboard/products',
-        isActive: false,
-        disabled: true,
-    },
-    {
-        title: 'Settings',
-        href: 'dashboard/settings',
-        isActive: false,
-        disabled: true,
-    },
-]

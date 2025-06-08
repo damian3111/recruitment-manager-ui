@@ -1,9 +1,7 @@
-// context/font-context.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
 import { fonts } from '@/config/fonts';
 
-// Define the font type based on the fonts array
-type Font = typeof fonts[number]; // "inter" | "manrope" | "system"
+type Font = typeof fonts[number];
 
 interface FontContextType {
     font: Font;
@@ -13,7 +11,7 @@ interface FontContextType {
 const FontContext = createContext<FontContextType | undefined>(undefined);
 
 export function FontProvider({ children }: { children: React.ReactNode }) {
-    const [font, setFont] = useState<Font>('inter'); // Default to a valid font
+    const [font, setFont] = useState<Font>('inter');
 
     useEffect(() => {
         if (typeof window !== 'undefined') {

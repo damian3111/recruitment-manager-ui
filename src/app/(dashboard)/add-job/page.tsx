@@ -13,7 +13,7 @@ import { ArrowLeft } from 'lucide-react';
 
 import TextField from '@/components/TextField';
 import TextAreaField from '@/components/TextAreaField';
-import ConfirmModal from '@/components/confirmationModal';
+import ConfirmModal from '@/components/modals/confirmationModal';
 import { useCurrentUser } from '@/lib/userService';
 import { useCreateJob, useUpdateJob, JobType } from '@/lib/jobService';
 
@@ -96,7 +96,6 @@ export default function JobForm() {
 
     return (
         <div>
-
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -104,7 +103,6 @@ export default function JobForm() {
                 className="max-w-[64rem] mx-auto px-4 py-6"
             >
                 <Card className="relative w-full p-12 rounded-3xl shadow-xl border border-gray-200 bg-white hover:shadow-2xl transition-all duration-300">
-                    {/* Back Button */}
                     <div className="absolute top-6 left-6">
                         <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -129,7 +127,6 @@ export default function JobForm() {
                             <p className="text-lg text-gray-600 mt-2">Create a job listing to attract top talent</p>
                         </motion.div>
 
-                        {/* Form */}
                         <motion.form
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}

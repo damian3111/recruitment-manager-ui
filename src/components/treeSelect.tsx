@@ -2,7 +2,6 @@ import React from 'react';
 import { DownOutlined } from '@ant-design/icons';
 import { TreeSelect } from 'antd';
 
-// Maximum number of selectable skills
 const PROFICIENCY_LEVELS = [
     { value: 'Beginner', label: 'Beginner' },
     { value: 'Familiar', label: 'Familiar' },
@@ -10,12 +9,11 @@ const PROFICIENCY_LEVELS = [
     { value: 'Expert', label: 'Expert' },
 ];
 
-// IT-related skills organized hierarchically
 const treeData = [
     {
         title: 'Technologies',
         value: 'technologies',
-        selectable: true, // Prevent selecting parent node
+        selectable: true,
         children: [
             { title: 'React', value: 'react' },
             { title: 'Angular', value: 'angular' },
@@ -95,13 +93,12 @@ const treeData = [
 ];
 
 const App: React.FC = () => {
-    const [value, setValue] = React.useState<string[]>([]); // Default to a relevant skill
+    const [value, setValue] = React.useState<string[]>([]);
 
     const onChange = (newValue: string[]) => {
         setValue(newValue);
     };
 
-    // Suffix showing selection count and dropdown icon
     const suffix = (
         <>
       <span>

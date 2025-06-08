@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@radix-ui/react-tooltip";
 import { useEffect, useState } from "react";
-import { Flame, CheckCircle, Target, BookOpen } from "lucide-react";
+import { Flame, CheckCircle, Target } from "lucide-react";
 
 const milestones = [
     { title: "Build your CV", description: "Create and upload a modern CV", completed: true },
@@ -42,7 +42,6 @@ export default function CareerGrowthPage() {
         <div className="p-8 max-w-5xl mx-auto">
             <h1 className="text-3xl font-bold mb-6 text-gray-800">📈 Career Growth Tracker</h1>
 
-            {/* Progress Tracker */}
             <div className="bg-white shadow-lg rounded-2xl p-6 mb-10 border">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold text-gray-700">Milestones</h2>
@@ -72,7 +71,6 @@ export default function CareerGrowthPage() {
                 </div>
             </div>
 
-            {/* Learning Tracks */}
             <div className="bg-white shadow-lg rounded-2xl p-6 mb-10 border">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold text-gray-700">🎓 Suggested Learning Tracks</h2>
@@ -97,7 +95,6 @@ export default function CareerGrowthPage() {
                 </div>
             </div>
 
-            {/* Motivational Quote */}
             <motion.div
                 key={quoteIndex}
                 initial={{ opacity: 0, y: 10 }}

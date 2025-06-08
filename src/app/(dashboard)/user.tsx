@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from '@/components/ui/button';
-// import { auth, signOut } from '@/lib/auth';
 import Image from 'next/image';
 import {
     DropdownMenu,
@@ -11,24 +10,16 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useMutation } from "@tanstack/react-query";
-import api from "@/utils/api";
-import toast from "react-hot-toast";
-import {motion} from "framer-motion";
 import {useLogout} from "@/lib/candidatesService";
 
 export function User() {
-    // let session = await auth();
-    // let user = session?.user;
     const { mutate: logout } = useLogout();
     const router = useRouter();
 
     const handleLogout = () => {
         logout();
     };
-    let user;
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -55,7 +46,7 @@ export function User() {
                     <DropdownMenuItem>
                         <button onClick={handleLogout}>
                             Log out
-                        </button>           {/*<Link href="/logout">Sign Out</Link>*/}
+                        </button>
                     </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

@@ -1,18 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Settings, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import React from 'react';
-
-interface User {
-    id: string;
-    role: string;
-}
-
-interface Props {
-    role: string; // e.g., "recruiter" or "recruiter or candidate"
-    asd: string;  // e.g., "Messages" or "Settings" for page context
-}
 
 export default function RoleBasedAccessDeniedPage({ role }: { role: string }) {
 

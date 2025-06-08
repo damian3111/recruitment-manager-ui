@@ -10,7 +10,7 @@ import { TreeSelect as AntTreeSelect } from 'antd';
 import { Label } from '@/components/ui/label';
 import TextField from '@/components/TextField';
 import TextAreaField from '@/components/TextAreaField';
-import ConfirmModal from '@/components/confirmationModal';
+import ConfirmModal from '@/components/modals/confirmationModal';
 import {
     useCreateJob,
     useUpdateJob,
@@ -22,7 +22,6 @@ import { CustomTagProps } from 'rc-select/es/BaseSelect';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-// Proficiency levels from CandidateFilters
 const PROFICIENCY_LEVELS = [
     { value: 'Beginner', label: 'Beginner' },
     { value: 'Familiar', label: 'Familiar' },
@@ -30,7 +29,6 @@ const PROFICIENCY_LEVELS = [
     { value: 'Expert', label: 'Expert' },
 ];
 
-// Generate treeData with proficiency levels
 const generateTreeDataWithProficiency = (baseTreeData: any[]) => {
     return baseTreeData.map((category) => ({
         ...category,
@@ -235,11 +233,10 @@ export default function JobForm() {
     const isSkillNode = (value: string) => !value.includes(':');
 
     const handleSkillsChange = (
-        value: string, // Single selected value (e.g., "java:Expert")
+        value: string,
         currentSkills: { name: string; proficiencyLevel?: string }[]
     ): { name: string; proficiencyLevel?: string }[] => {
         if (!value || isSkillNode(value)) {
-            // Ignore empty values or skill nodes without proficiency (e.g., "javascript")
             return currentSkills;
         }
 
@@ -248,18 +245,16 @@ export default function JobForm() {
             return currentSkills;
         }
 
-        // Remove any existing skill with the same name to enforce single proficiency
         const updatedSkills = currentSkills.filter((s) => s.name !== name);
         updatedSkills.push({ name, proficiencyLevel });
         return updatedSkills;
     };
 
     const handleSelect = (
-        value: string, // Single selected value (e.g., "java:Expert")
+        value: string,
         currentSkills: { name: string; proficiencyLevel?: string }[]
     ): { name: string; proficiencyLevel?: string }[] => {
         if (isSkillNode(value)) {
-            // Ignore skill nodes without proficiency (e.g., "javascript")
             return currentSkills;
         }
 
@@ -268,9 +263,7 @@ export default function JobForm() {
             return currentSkills;
         }
 
-        // Remove any existing skill with the same name
         const updatedSkills = currentSkills.filter((s) => s.name !== name);
-        // Add new skill with proficiency
         updatedSkills.push({ name, proficiencyLevel });
         return updatedSkills;
     };

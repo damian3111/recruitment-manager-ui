@@ -1,16 +1,15 @@
 import Link from 'next/link';
 import {
-    BriefcaseBusiness,
+    BriefcaseBusiness, Compass,
     Home,
-    LineChart,
+    LineChart, Mail, MessageCircle,
     Package,
     Package2,
     PanelLeft,
     Settings,
-    ShoppingCart,
+    ShoppingCart, Target, TrendingUp, UserPlus, UserRoundPen,
     Users2
 } from 'lucide-react';
-import { RouterProvider } from '@tanstack/react-router'
 
 import {
     Breadcrumb,
@@ -22,23 +21,16 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger
-} from '@/components/ui/tooltip';
-// import { Analytics } from '@vercel/analytics/react';
 import { User } from './user';
-// import { VercelLogo } from '@/components/icons';
 import Providers from './providers';
 import { NavItem } from './nav-item';
 import { SearchInput } from './search';
-import { ActiveThemeProvider } from "@/components/active-theme";
 import SidebarNav from "@/components/sidebar-nav";
 import {IconBrowserCheck, IconNotification, IconPalette, IconTool, IconUser} from "@tabler/icons-react";
 import {Separator} from "@/components/ui/separator";
-import {Main} from "@/components/main"; // Import your Provider!
-// import { router } from './router' // <- you should have a router object created somewhere!
+import {Main} from "@/components/main";
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import Image from "next/image";
 
 export default function DashboardLayout({
                                             children
@@ -57,8 +49,6 @@ export default function DashboardLayout({
                         <User />
                     </header>
                     <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-white/40">
-                        {/*<RouterProvider router={router}>*/}
-
                         <Main fixed>
                             <div className='space-y-1'>
                                 <h1 className='text-3xl font-bold tracking-tight md:text-4xl'>
@@ -76,7 +66,7 @@ export default function DashboardLayout({
                                     <SidebarNav items={sidebarNavItems} />
                                 </aside>
                                 <div className='flex w-full overflow-y-hidden p-4'>
-                                    {children} {/* <- all nested routes appear here */}
+                                    {children}
                                 </div>
                             </div>
                         </Main>
@@ -91,7 +81,7 @@ export default function DashboardLayout({
 const sidebarNavItems = [
     {
         title: 'Profile',
-        icon: <IconUser size={24} />, // bigger icon
+        icon: <IconUser size={24} />,
         href: '/settings',
     },
     {
@@ -118,48 +108,82 @@ const sidebarNavItems = [
 function DesktopNav() {
     return (
         <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
+
             <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
                 <Link
-                    href="https://vercel.com/templates/next.js/admin-dashboard-tailwind-postgres-react-nextjs"
+                    href="/home"
                     className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
                 >
-                    {/*<VercelLogo className="h-3 w-3 transition-all group-hover:scale-110" />*/}
+                    <Image
+                        src={"/M-logo.png"}
+                        width={36}
+                        height={36}
+                        alt="Avatar"
+                        className="overflow-hidden rounded-full"
+                    />
                     <span className="sr-only">Acme Inc</span>
                 </Link>
 
                 <NavItem href="/home" label="Home">
                     <Home className="h-5 w-5" />
                 </NavItem>
-
                 <NavItem href="/jobs" label="Jobs">
                     <BriefcaseBusiness className="h-5 w-5" />
                 </NavItem>
-
-                <NavItem href="/" label="Products">
-                    <Package className="h-5 w-5" />
-                </NavItem>
-
-                <NavItem href="/customers" label="Customers">
+                <NavItem href="/candidates" label="Candidates">
                     <Users2 className="h-5 w-5" />
                 </NavItem>
-
-                <NavItem href="#" label="Analytics">
+                <NavItem href="/invitations" label="Invitations">
+                    <Mail className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/recruiter-profile" label="Recruiter Profile">
+                    <UserPlus className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/profile" label="Candidate Profile">
+                    <UserRoundPen className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/analytics" label="Analytics">
                     <LineChart className="h-5 w-5" />
                 </NavItem>
+                <NavItem href="/chats" label="Chats">
+                    <MessageCircle className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/career-compas" label="Career Compas">
+                    <Compass className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/skill-matcher" label="Skill Matcher">
+                    <Target className="h-5 w-5" />
+                </NavItem>
+                <NavItem href="/growth-tracker" label="Growth Tracker">
+                    <TrendingUp className="h-5 w-5" />
+                </NavItem>
             </nav>
-            <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Link
-                            href="#"
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                        >
-                            <Settings className="h-5 w-5" />
-                            <span className="sr-only">Settings</span>
-                        </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">Settings</TooltipContent>
-                </Tooltip>
+            <nav className="mt-auto flex flex-col items-center gap-4 px-2  sm:py-5">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button className="flex h-6 w-6 items-center justify-center  rounded-md text-muted-foreground hover:text-foreground">
+                            <Settings className="h-8 w-8" />
+                            <span className="sr-only">Jobs</span>
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent side="right" className={"mb-3"} align="start">
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings">Profile</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings/account">Account</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings/appearance">Appearance</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings/notifications">Notifications</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                            <Link href="/settings/display">Display</Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </nav>
         </aside>
     );
@@ -176,48 +200,126 @@ function MobileNav() {
             </SheetTrigger>
             <SheetContent side="left" className="sm:max-w-xs">
                 <nav className="grid gap-6 text-lg font-medium">
+                    {/* Logo Link */}
                     <Link
-                        href="#"
-                        className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                        href="/home"
+                        className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
                     >
-                        <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                        <span className="sr-only">Vercel</span>
+                        <Image
+                            src="/M-logo.png"
+                            width={36}
+                            height={36}
+                            alt="Acme Inc Logo"
+                            className="overflow-hidden rounded-full"
+                        />
+                        <span className="sr-only">Acme Inc</span>
                     </Link>
+
+                    {/* Navigation Items with Icons and Labels */}
                     <Link
-                        href="#"
+                        href="/home"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <Home className="h-5 w-5" />
-                        Dashboard
+                        <span>Home</span>
                     </Link>
                     <Link
-                        href="#"
+                        href="/jobs"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
-                        <ShoppingCart className="h-5 w-5" />
-                        Orders
+                        <BriefcaseBusiness className="h-5 w-5" />
+                        <span>Jobs</span>
                     </Link>
                     <Link
-                        href="#"
-                        className="flex items-center gap-4 px-2.5 text-foreground"
-                    >
-                        <Package className="h-5 w-5" />
-                        Products
-                    </Link>
-                    <Link
-                        href="#"
+                        href="/candidates"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <Users2 className="h-5 w-5" />
-                        Customers
+                        <span>Candidates</span>
                     </Link>
                     <Link
-                        href="#"
+                        href="/invitations"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <Mail className="h-5 w-5" />
+                        <span>Invitations</span>
+                    </Link>
+                    <Link
+                        href="/recruiter-profile"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <UserPlus className="h-5 w-5" />
+                        <span>Recruiter Profile</span>
+                    </Link>
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <UserRoundPen className="h-5 w-5" />
+                        <span>Candidate Profile</span>
+                    </Link>
+                    <Link
+                        href="/analytics"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <LineChart className="h-5 w-5" />
-                        Settings
+                        <span>Analytics</span>
                     </Link>
+                    <Link
+                        href="/chats"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <MessageCircle className="h-5 w-5" />
+                        <span>Chats</span>
+                    </Link>
+                    <Link
+                        href="/career-compas"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <Compass className="h-5 w-5" />
+                        <span>Career Compas</span>
+                    </Link>
+                    <Link
+                        href="/skill-matcher"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <Target className="h-5 w-5" />
+                        <span>Skill Matcher</span>
+                    </Link>
+                    <Link
+                        href="/growth-tracker"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <TrendingUp className="h-5 w-5" />
+                        <span>Growth Tracker</span>
+                    </Link>
+
+                    {/* Settings Dropdown with Icon and Label */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Settings className="h-5 w-5" />
+                                <span>Settings</span>
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start">
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings">Profile</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/account">Account</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/appearance">Appearance</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/notifications">Notifications</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/display">Display</Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </nav>
             </SheetContent>
         </Sheet>

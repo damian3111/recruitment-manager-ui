@@ -20,14 +20,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { Header } from '@/components/header'
 import { Main } from '@/components/main'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { NewChat } from './components/new-chat'
 import { type ChatUser, type Convo } from './data/chat-types'
-// Fake Data
 import { conversations } from './data/convo.json'
 
 export default function Chats() {
@@ -39,7 +34,6 @@ export default function Chats() {
     const [createConversationDialogOpened, setCreateConversationDialog] =
         useState(false)
 
-    // Filtered data based on the search query
     const filteredChatList = conversations.filter(({ fullName }) =>
         fullName.toLowerCase().includes(search.trim().toLowerCase())
     )
@@ -47,15 +41,10 @@ export default function Chats() {
     const currentMessage = selectedUser?.messages.reduce(
         (acc: Record<string, Convo[]>, obj) => {
             const key = format(obj.timestamp, 'd MMM, yyyy')
-
-            // Create an array for the category if it doesn't exist
             if (!acc[key]) {
                 acc[key] = []
             }
-
-            // Push the current object to the array
             acc[key].push(obj)
-
             return acc
         },
         {}
@@ -84,7 +73,6 @@ export default function Chats() {
                                     <h1 className='text-2xl font-bold'>Inbox</h1>
                                     <IconMessages size={20} />
                                 </div>
-
                                 <Button
                                     size='icon'
                                     variant='ghost'
@@ -107,7 +95,6 @@ export default function Chats() {
                                 />
                             </label>
                         </div>
-
                         <ScrollArea className='-mx-3 h-full p-3'>
                             {filteredChatList.map((chatUsr) => {
                                 const { id, profile, username, messages, fullName } = chatUsr
@@ -150,8 +137,6 @@ export default function Chats() {
                             })}
                         </ScrollArea>
                     </div>
-
-                    {/* Right Side */}
                     {selectedUser ? (
                         <div
                             className={cn(
@@ -159,9 +144,7 @@ export default function Chats() {
                                 mobileSelectedUser && 'left-0 flex'
                             )}
                         >
-                            {/* Top Part */}
                             <div className='bg-secondary mb-1 flex flex-none justify-between rounded-t-md p-4 shadow-lg'>
-                                {/* Left */}
                                 <div className='flex gap-3'>
                                     <Button
                                         size='icon'
@@ -190,7 +173,6 @@ export default function Chats() {
                                     </div>
                                 </div>
 
-                                {/* Right */}
                                 <div className='-mr-1 flex items-center gap-1 lg:gap-2'>
                                     <Button
                                         size='icon'
@@ -216,7 +198,6 @@ export default function Chats() {
                                 </div>
                             </div>
 
-                            {/* Conversation */}
                             <div className='flex flex-1 flex-col gap-2 rounded-md px-4 pt-0 pb-4'>
                                 <div className='flex size-full flex-1'>
                                     <div className='chat-text-container relative -mr-4 flex flex-1 flex-col overflow-y-hidden'>

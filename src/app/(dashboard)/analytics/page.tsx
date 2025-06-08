@@ -9,152 +9,19 @@ import {
 } from '@/components/ui/card'
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Header } from '@/components/header'
 import { Main } from '@/components/main'
-import { TopNav } from '@/components/top-nav'
-import { ProfileDropdown } from '@/components/profile-dropdown'
-import { Search } from '@/components/search'
-import { ThemeSwitch } from '@/components/theme-switch'
 import { Overview } from './components/overview'
 import { RecentSales } from './components/recents-sales'
-import Link from "next/link";
-import {ConfirmModal} from "@/components/ConfirmModal";
-import React, {useEffect, useState} from "react";
-import {useJobs, useJobsByUser} from "@/lib/jobService";
-import {useCurrentUser} from "@/lib/userService";
-import {useCandidateByEmail, useCandidates} from "@/lib/candidatesService";
-import {
-    useDeleteInvite, useInvitationsReceivedByRecruited,
-    useInvitesByCandidateAndRecruiter,
-    useInvitesByJobUser,
-    useInvitesByRecruiter, useUpdateInviteStatus
-} from "@/lib/invitationService";
-import {Badge} from "@/components/ui/badge";
-import toast from "react-hot-toast";
-import UnderConstructionPage from "@/components/UnderConstructionPage";
-import {LineChart, PieChart, Wrench} from "lucide-react";
-import { BarChart, Users, Eye, TrendingUp } from 'lucide-react';
+import React from "react";
+import {LineChart, PieChart} from "lucide-react";
+import { BarChart, Users, Eye } from 'lucide-react';
 import {
     Activity,
-    BarChart2,
     CheckCircle,
     DollarSign,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 
 export default function Dashboard() {
-    const { data: user } = useCurrentUser()
-    const { data: invites } = useInvitesByRecruiter(user?.id)
-    // const { data: jobs } = useJobsByUser(user?.id)
-    const { data: jobs2 } = useJobs();
-    const { data: candidates } = useCandidates()
-    const { data: invitesByRecruiter, isLoading: invitesLoading } = useInvitesByRecruiter(user?.id);
-    const { data: invitesByJobUser } = useInvitesByJobUser(user?.id, user?.email);
-    const { data: invitesReceivedByRecruited } = useInvitationsReceivedByRecruited(user?.id, user?.email);
-    const deleteInvite = useDeleteInvite();
-    const updateInviteStatus = useUpdateInviteStatus();
-
-    // if (!invitesByJobUser) return null
-
-    const getJob = (jobId: number) => jobs2?.find((j) => j.id === jobId)
-    const getCandidate = (candidateId: number) => candidates?.find((c) => c.id === candidateId);
-    // let roleBasedInvites = (user?.userRole == "recruiter" ? invitesByJobUser : invitesReceivedByRecruited);
-    let roleBasedInvites = invitesReceivedByRecruited;
-    let allInvites = [...(invitesByJobUser ?? []), ...(invitesReceivedByRecruited ?? [])];
-    console.log("user");
-    console.log(roleBasedInvites);
-
-    const { mutate } = useUpdateInviteStatus();
-    const summaryData = [
-        {
-            icon: <Users className="h-6 w-6 text-blue-500" />,
-            title: 'Total Users',
-            value: '1,245',
-        },
-        {
-            icon: <Eye className="h-6 w-6 text-green-500" />,
-            title: 'Page Views',
-            value: '9,542',
-        },
-        {
-            icon: <TrendingUp className="h-6 w-6 text-purple-500" />,
-            title: 'Conversion Rate',
-            value: '4.7%',
-        },
-    ];
-    const handleCancel = (jobId: number, candidateId: number) => {
-        const invite = invites?.find(inv =>
-            inv.status === 'sent' &&
-            inv.recruiter_id === user.id &&
-            inv.job_id === jobId &&
-            inv.candidate_id === candidateId
-        );
-
-        if (!invite) return;
-
-        deleteInvite.mutate(invite.id, {
-            onSuccess: () => {
-                // invitesByRecruiter(prev => prev.filter(id => id !== jobId));
-                toast.success('✅ Invitation deleted!');
-                // refetch(); // jeśli potrzebne
-            },
-            onError: () => toast.error('❌ Failed to delete invitation.'),
-        });
-    };
-
-    const handleCancelAnalytics = (jobId: number, candidateId: number) => {
-        const invite = roleBasedInvites?.find(inv =>
-            inv.job_id === jobId &&
-            inv.candidate_id === candidateId
-        );
-
-        if (!invite) return;
-
-        deleteInvite.mutate(invite.id, {
-            onSuccess: () => {
-                // invitesByRecruiter(prev => prev.filter(id => id !== jobId));
-                toast.success('✅ Invitation deleted!');
-                // refetch(); // jeśli potrzebne
-            },
-            onError: () => toast.error('❌ Failed to delete invitation.'),
-        });
-    };
-
-
-    const handleAcceptInvitation = (jobId: number, candidateId: number) => {
-        // Find the invite matching the given jobId and candidateId
-        const invite = roleBasedInvites?.find(inv =>
-            inv.status === 'sent' &&
-            inv.job_id === jobId &&
-            inv.candidate_id === candidateId
-        );
-
-        // Check if invite exists
-        if (!invite) return;
-
-        // Call the mutate function to accept the invitation
-        mutate({
-            id: invite.id,
-            status: 'accepted', // Or InvitationStatus.ACCEPTED if it's an enum
-        }, {
-            onSuccess: () => {
-                toast.success('✅ Invitation accepted!');
-            },
-            onError: () => {
-                toast.error('❌ Failed to accept the invitation.');
-            },
-        });
-    };
-
-    const handleRemoveRelation = (inviteId: number) => {
-        deleteInvite.mutate(inviteId, {
-            onSuccess: () => {
-                toast.success('✅ Invitation deleted!');
-            },
-            onError: () => toast.error('❌ Failed to delete invitation.'),
-        });
-    };
-
     return (
         <>
             {/* ===== Top Heading ===== */}
@@ -324,7 +191,6 @@ export default function Dashboard() {
                         >
                             <h1 className="text-3xl font-bold text-gray-800 mb-10">Advanced Analytics</h1>
 
-                            {/* Top Metrics */}
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
                                 {[
                                     { icon: <Users className="text-blue-500" />, title: 'New Users', value: '1,280' },
@@ -344,7 +210,6 @@ export default function Dashboard() {
                                 ))}
                             </div>
 
-                            {/* Charts and Tabs */}
                             <Tabs defaultValue="traffic" className="w-full">
                                 <TabsList className="mb-6">
                                     <TabsTrigger value="traffic">Traffic</TabsTrigger>
@@ -363,7 +228,6 @@ export default function Dashboard() {
                                             </div>
 
                                             <div className="h-64 flex items-center justify-center text-gray-400 border-2 border-dashed rounded-lg">
-                                                {/* Replace this div with a chart component */}
                                                 <span>Chart coming soon...</span>
                                             </div>
                                         </div>
@@ -401,30 +265,3 @@ export default function Dashboard() {
         </>
     )
 }
-
-const topNav = [
-    {
-        title: 'Overview',
-        href: 'dashboard/overview',
-        isActive: true,
-        disabled: false,
-    },
-    {
-        title: 'Customers',
-        href: 'dashboard/customers',
-        isActive: false,
-        disabled: true,
-    },
-    {
-        title: 'Products',
-        href: 'dashboard/products',
-        isActive: false,
-        disabled: true,
-    },
-    {
-        title: 'Settings',
-        href: 'dashboard/settings',
-        isActive: false,
-        disabled: true,
-    },
-]

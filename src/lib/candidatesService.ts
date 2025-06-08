@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '../utils/api';
-import {JobFilter} from "@/lib/jobService";
 import toast from "react-hot-toast";
 import { useRouter } from 'next/navigation';
 
@@ -68,7 +67,7 @@ export const useCandidates = () => {
 //             return res.data;
 //         },
 //         staleTime: 1000 * 60,
-//         enabled: !!filter, // Optional: disables query if no filter provided
+//         enabled: !!filter,
 //     });
 // };
 
@@ -83,7 +82,7 @@ export const useFilteredCandidates = (filter: CandidateFilter, page = 0, size = 
         queryKey: ['candidates', filter, page, size],
         queryFn: async () => {
             const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
-            return res.data; // Expected: { data: CandidateType[], total: number, ... }
+            return res.data;
         },
         staleTime: 1000 * 60,
         enabled: !!filter,
@@ -94,7 +93,7 @@ export const useFilteredCandidates = (filter: CandidateFilter, page = 0, size = 
 //         queryKey: ['filteredJobs', filter, page, size],
 //         queryFn: async () => {
 //             const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
-//             return res.data; // zakładamy Page<Job>
+//             return res.data;
 //         },
 //         // keepPreviousData: true,
 //     });
@@ -126,7 +125,6 @@ export const useCandidateByEmail = (email: string) => {
 
 export const useLogout = () => {
     const queryClient = useQueryClient();
-    const router = useRouter();
 
     return useMutation({
         mutationFn: async () => {

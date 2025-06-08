@@ -1,5 +1,6 @@
+"use client"
+
 import { Button } from '@/components/ui/button';
-// import { auth, signOut } from '@/lib/auth';
 import Image from 'next/image';
 import {
     DropdownMenu,
@@ -9,12 +10,16 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {useLogout} from "@/lib/candidatesService";
 
-export async function User() {
-    // let session = await auth();
-    // let user = session?.user;
-let user;
+export function User() {
+    const { mutate: logout } = useLogout();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        logout();
+    };
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -23,37 +28,26 @@ let user;
                     size="icon"
                     className="overflow-hidden rounded-full"
                 >
-                    {/*<Image*/}
-                    {/*    src={user?.image ?? '/placeholder-user.jpg'}*/}
-                    {/*    width={36}*/}
-                    {/*    height={36}*/}
-                    {/*    alt="Avatar"*/}
-                    {/*    className="overflow-hidden rounded-full"*/}
-                    {/*/>*/}
+                    <Image
+                        src={"/user-image.png"}
+                        width={36}
+                        height={36}
+                        alt="Avatar"
+                        className="overflow-hidden rounded-full"
+                    />
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/settings')}>Settings</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/support')}>Support</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                {user ? (
-                    <DropdownMenuItem>
-                        <form
-                            action={async () => {
-                                'use server';
-                                // await signOut();
-                            }}
-                        >
-                            <button type="submit">Sign Out</button>
-                        </form>
-                    </DropdownMenuItem>
-                ) : (
-                    <DropdownMenuItem>
-                        <Link href="/login">Sign In</Link>
-                    </DropdownMenuItem>
-                )}
+                <DropdownMenuItem>
+                    <button onClick={handleLogout}>
+                        Log out
+                    </button>
+                </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     );

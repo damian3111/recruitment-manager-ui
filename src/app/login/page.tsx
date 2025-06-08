@@ -7,7 +7,8 @@ import { z } from "zod";
 import toast from "react-hot-toast";
 import api from "@/utils/api";
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import {useRouter, useSearchParams} from 'next/navigation';
+import {useEffect} from "react";
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -23,6 +24,22 @@ export default function LoginPage() {
         resolver: zodResolver(loginSchema),
     });
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const token = searchParams.get("token");
+        if (token) {
+            const expires = new Date(Date.now() + 3600000);
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
+                process.env.NODE_ENV === "production" ? "Secure" : ""
+            }`;
+            document.cookie = cookieString;
+
+            toast.success("Google login successful!");
+            router.push("/home");
+        }
+    }, [searchParams, router]);
+
 
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {

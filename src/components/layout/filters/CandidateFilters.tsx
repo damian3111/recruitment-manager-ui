@@ -27,14 +27,13 @@ const PROFICIENCY_LEVELS = [
 const generateTreeDataWithProficiency = (baseTreeData: any[]) => {
     return baseTreeData.map((category) => ({
         ...category,
-        checkable: false, // Make sections unclickable (no checkbox)
+        checkable: false,
         children: category.children.map((skill: { title: string; value: string }) => ({
             title: skill.title,
-            value: skill.value, // Parent skill node
-            // selectable: true, // Allow selecting skill nodes (optional, controlled by logic)
+            value: skill.value,
             children: PROFICIENCY_LEVELS.map((prof) => ({
                 title: prof.label,
-                value: `${skill.value}:${prof.value}`, // e.g., "java:Expert"
+                value: `${skill.value}:${prof.value}`,
             })),
         })),
     }));
@@ -233,25 +232,17 @@ export default function CandidateFilters({
     const handleSkillsChange = (selectedValues: string[]) => {
         setFocusedField('skills');
 
-        // Expand skill nodes to include all proficiency levels
         const expandedValues: string[] = [];
         selectedValues.forEach((value) => {
             if (isSkillNode(value)) {
-                // If a skill node is selected, add all its proficiency levels
                 expandedValues.push(...getProficiencyNodes(value));
             } else {
-                // If a proficiency node is selected, add it directly
                 expandedValues.push(value);
             }
         });
 
-        // Remove duplicates and limit to MAX_SKILLS
         const uniqueValues = Array.from(new Set(expandedValues));
-
-        // Convert to skills array
         const newSkills = uniqueValues.map((value) => decodeSkill(value));
-
-        console.log("newSkills", newSkills);
 
         onChange({
             ...filters,
@@ -294,7 +285,6 @@ export default function CandidateFilters({
 
         values.forEach((value) => {
             if (isSkillNode(value)) {
-                // Remove all proficiency levels for the skill
                 updatedSkills = updatedSkills.filter((s) => s.name !== value);
             } else {
                 const { name, proficiencyLevel } = decodeSkill(value);

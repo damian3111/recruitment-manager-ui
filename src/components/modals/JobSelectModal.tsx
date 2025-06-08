@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { JobType } from '@/lib/jobService';
 import {
-    useDeleteInvite, useInvites,
-    useInvitesByCandidate,
-    useInvitesByCandidateAndRecruiter,
+    useDeleteInvite,
     useSendInvite,
     useUpdateInviteStatus, useUserRelatedInvitations
 } from '@/lib/invitationService';
@@ -27,12 +25,9 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
     const [acceptedJobIds, setAcceptedJobIds] = useState<number[]>([]);
     const [receivedJobIds, setReceivedJobIds] = useState<number[]>([]);
     const { data: user } = useCurrentUser();
-    // const { data: invites, refetch, isFetching } = useInvitesByCandidateAndRecruiter(candidateId, user?.id);
-    // const { data: invites, refetch, isFetching } = useInvites();
     const {data: invites, refetch, isFetching  } = useUserRelatedInvitations(user?.id, user?.email);
 
     const sendInvite = useSendInvite();
-    const cancelInvite = useUpdateInviteStatus();
     const deleteInvite = useDeleteInvite();
     const { mutate } = useUpdateInviteStatus();
 
@@ -106,9 +101,6 @@ const JobSelectModal: React.FC<JobSelectModalProps> = ({
             inv.job_id === jobId &&
             inv.candidate_id === candidateId
         );
-console.log("(((((");
-console.log(jobId);
-console.log(candidateId);
         if (!invite) return;
 
         mutate({
@@ -135,9 +127,7 @@ console.log(candidateId);
 
         deleteInvite.mutate(invite.id, {
             onSuccess: () => {
-                // setSentJobIds(prev => prev.filter(id => id !== jobId));
                 toast.success('✅ Invitation deleted!');
-                // refetch(); // jeśli potrzebne
             },
             onError: () => toast.error('❌ Failed to delete invitation.'),
         });
@@ -156,11 +146,6 @@ console.log(candidateId);
                         const isSent = sentJobIds.includes(job.id);
                         const isAccepted = acceptedJobIds.includes(job.id);
                         const isReceived = receivedJobIds.includes(job.id);
-                        console.log("$$$");
-                        console.log(job.id);
-                        console.log(isSent);
-                        console.log(isAccepted);
-                        console.log(isReceived);
                         return (
                             <div key={job.id} className="flex items-center justify-between">
                                 <span className="text-gray-700">{job.title}</span>

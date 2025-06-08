@@ -37,10 +37,8 @@ export default function RootLayout({
       >
       <QueryClientProvider client={queryClient}>
           <Toaster position="top-right" reverseOrder={false} />
-
           {children}
       </QueryClientProvider>
-
       </body>
     </html>
   );

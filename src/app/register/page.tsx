@@ -7,7 +7,6 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import {useCreateCandidate} from "@/lib/candidatesService";
 import { motion } from 'framer-motion';
 
 type FormData = {
@@ -74,7 +73,6 @@ export default function RegisterPage() {
 
     return (
         <div className="min-h-screen p-4 flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
-            {/* Background Gradient Animation */}
             <motion.div
                 className="absolute inset-0"
                 animate={{
@@ -235,7 +233,6 @@ export default function RegisterPage() {
             </motion.div>
 
             <div id="toast-container" className="absolute top-4 right-4 z-50">
-                {/* Toast notifications will render here */}
             </div>
         </div>
     );

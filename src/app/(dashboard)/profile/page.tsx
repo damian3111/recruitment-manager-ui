@@ -27,14 +27,12 @@ import {
     useUpdateCandidate,
 } from '@/lib/candidatesService';
 import { useCurrentUser } from '@/lib/userService';
-import ConfirmModal from '@/components/confirmationModal';
+import ConfirmModal from '@/components/modals/confirmationModal';
 import TextField from '@/components/TextField';
 import TextAreaField from '@/components/TextAreaField';
 import RoleBasedAccessDeniedPage from '@/components/RoleBasedAccessDeniedPage';
 import {CustomTagProps} from "rc-select/es/BaseSelect";
-import {Spinner} from "@/components/icons";
 
-// Proficiency levels from CandidateFilters
 const PROFICIENCY_LEVELS = [
     { value: 'Beginner', label: 'Beginner' },
     { value: 'Familiar', label: 'Familiar' },
@@ -42,7 +40,6 @@ const PROFICIENCY_LEVELS = [
     { value: 'Expert', label: 'Expert' },
 ];
 
-// Generate treeData with proficiency levels
 const generateTreeDataWithProficiency = (baseTreeData: any[]) => {
     return baseTreeData.map((category) => ({
         ...category,
@@ -51,7 +48,7 @@ const generateTreeDataWithProficiency = (baseTreeData: any[]) => {
             title: skill.title,
             value: skill.value,
             checkable: false,
-            selectable: true, // Allow selecting skill without proficiency
+            selectable: true,
             children: PROFICIENCY_LEVELS.map((prof) => ({
                 title: prof.label,
                 value: `${skill.value}:${prof.value}`,
@@ -181,7 +178,6 @@ const suffix = (count: number) => (
     </>
 );
 
-// Schema with skills as { name: string; proficiencyLevel?: string }[]
 const candidateSchema = z.object({
     first_name: z.string().min(1, 'First name is required'),
     last_name: z.string().min(1, 'Last name is required'),
@@ -245,16 +241,12 @@ export default function CandidateForm() {
     const router = useRouter();
 
     const isSkillNode = (value: string) => !value.includes(':');
-    const getProficiencyNodes = (skillValue: string) => {
-        return PROFICIENCY_LEVELS.map((prof) => encodeSkill(skillValue, prof.value));
-    };
 
     const handleSkillsChange = (
-        value: string, // Single selected value (e.g., "java:Expert")
+        value: string,
         currentSkills: { name: string; proficiencyLevel?: string }[]
     ): { name: string; proficiencyLevel?: string }[] => {
         if (!value || isSkillNode(value)) {
-            // Ignore empty values or skill nodes without proficiency (e.g., "javascript")
             return currentSkills;
         }
 
@@ -263,18 +255,16 @@ export default function CandidateForm() {
             return currentSkills;
         }
 
-        // Remove any existing skill with the same name to enforce single proficiency
         const updatedSkills = currentSkills.filter((s) => s.name !== name);
         updatedSkills.push({ name, proficiencyLevel });
         return updatedSkills;
     };
 
     const handleSelect = (
-        value: string, // Single selected value (e.g., "java:Expert")
+        value: string,
         currentSkills: { name: string; proficiencyLevel?: string }[]
     ): { name: string; proficiencyLevel?: string }[] => {
         if (isSkillNode(value)) {
-            // Ignore skill nodes without proficiency (e.g., "javascript")
             return currentSkills;
         }
 
@@ -283,7 +273,6 @@ export default function CandidateForm() {
             return currentSkills;
         }
 
-        // Remove any existing skill with the same name
         const updatedSkills = currentSkills.filter((s) => s.name !== name);
         // Add new skill with proficiency
         updatedSkills.push({ name, proficiencyLevel });
@@ -347,7 +336,6 @@ export default function CandidateForm() {
     }, [candidate, reset]);
 
     const onSubmit = (data: CandidateFormType) => {
-        console.log("asdsaddas");
         try {
             const normalizedData: Omit<CandidateType, 'id'> = {
                 first_name: data.first_name,
@@ -378,7 +366,6 @@ export default function CandidateForm() {
     };
 
     const confirmAction = () => {
-        console.log("sd");
         if (!formData) return;
         const isUpdate = !!candidate?.id;
         const onSuccess = () => {
@@ -400,7 +387,6 @@ export default function CandidateForm() {
         }
     };
 
-
     if (user && user?.userRole !== 'recruited') {
         return <RoleBasedAccessDeniedPage role="recruiters" />;
     }
@@ -413,7 +399,6 @@ export default function CandidateForm() {
     //         </div>
     //     </div>
     // }
-    //
 
     return (
         <div className="">

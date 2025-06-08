@@ -1,9 +1,7 @@
-// app/under-construction/page.tsx or any route you want
-
 'use client';
 
 import { motion } from 'framer-motion';
-import {Construction, Wrench} from 'lucide-react';
+import {Wrench} from 'lucide-react';
 import React from "react";
 
 export default function UnderConstructionPage() {

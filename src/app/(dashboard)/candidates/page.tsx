@@ -12,14 +12,14 @@ import {
 import {Bookmark, BriefcaseBusiness, MoreVertical} from 'lucide-react';
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import ConfirmModal from "@/components/confirmationModal";
+import ConfirmModal from "@/components/modals/confirmationModal";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import JobSelectModal from "@/components/JobSelectModal";
+import JobSelectModal from "@/components/modals/JobSelectModal";
 import { JobType, useJobsByUser } from "@/lib/jobService";
 import { useCurrentUser } from "@/lib/userService";
 import {useDeleteInvite, useSendInvite} from "@/lib/invitationService";
-import CandidateFilters from "@/components/CandidateFilters";
+import CandidateFilters from "@/components/layout/filters/CandidateFilters";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {AnimatePresence, motion} from 'framer-motion';
 import { useRouter } from 'next/navigation';
@@ -29,12 +29,9 @@ export default function CandidatesPage() {
     const { data: jobs } = useJobsByUser(user?.id);
     const [showConfirm, setShowConfirm] = useState(false);
     const [selectedCandidateId, setSelectedCandidateId] = useState<number | null>(null);
-    const [selectedJobs, setSelectedJobs] = useState<JobType[] | null>(null);
-    const sendInvitationMutation = useSendInvite();
     const [filters, setFilters] = useState<CandidateFilter>({});
     const debouncedFilters = useDebouncedValue(filters, 500);
     const [focusedField, setFocusedField] = useState<keyof CandidateFilter | null>(null);
-    const deleteInvite = useDeleteInvite();
     const [bookmarkedCandidateIds, setBookmarkedCandidateIds] = useState<number[]>([]);
     const [page, setPage] = useState(0);
     const pageSize = 10;
@@ -88,11 +85,14 @@ export default function CandidatesPage() {
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="w-1/4 bg-white rounded-2xl shadow-xl p-10 border border-gray-200 sticky top-6"
+                className="w-2/6 min-w-2x bg-white rounded-2xl shadow-xl p-10 border border-gray-200 sticky top-6"
             >
                 <CandidateFilters
                     filters={filters}
-                    onChange={setFilters}
+                    onChange={v => {
+                        setFilters(v);
+                        setPage(0);
+                    }}
                     focusedField={focusedField}
                     setFocusedField={setFocusedField}
                 />
@@ -187,7 +187,7 @@ export default function CandidatesPage() {
                                     </div>
 
                                     {/* Center Column: Status, Applied At */}
-                                    <div className="flex-1 space-y-4">
+                                    <div className="flex-1 space-y-2">
                                         <p className="text-base font-medium text-gray-700">
                                             <span className="text-blue-600 font-semibold">
                         {candidate.location || 'N/A'}

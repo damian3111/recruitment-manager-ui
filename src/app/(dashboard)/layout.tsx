@@ -1,23 +1,13 @@
-import { AppSidebar } from "@/components/app-sidebar"
-
-import { Separator } from "@/components/ui/separator"
-import {
-    SidebarInset,
-    SidebarTrigger,
-} from "@/components/ui/sidebar"
-
-
 import Link from 'next/link';
 import {
-    Bell,
-    BriefcaseBusiness, ChevronRight, Compass,
+    BriefcaseBusiness, Compass,
     Home,
     LineChart, Mail, MessageCircle,
     Package,
     Package2,
     PanelLeft,
     Settings,
-    ShoppingCart, Target, TrendingUp, UserPlus, UserRound, UserRoundPen,
+    ShoppingCart, Target, TrendingUp, UserPlus, UserRoundPen,
     Users2
 } from 'lucide-react';
 
@@ -31,39 +21,21 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { User } from './user';
+import Providers from './providers';
+import { NavItem } from './nav-item';
+import { SearchInput } from './search';
+import { BellNav } from './bell-nav';
 import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger
-} from '@/components/ui/tooltip';
-// import { Analytics } from '@vercel/analytics/react';
-import { User } from './candidates/user';
-// import { VercelLogo } from '@/components/icons';
-import Providers from './candidates/providers';
-import { NavItem } from './candidates/nav-item';
-import { SearchInput } from './candidates/search';
-import { BellNav } from './candidates/bell-nav';
-import {
-    SidebarGroup,
-    SidebarGroupLabel,
-    SidebarMenu,
-    SidebarMenuButton,
-    SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem, SidebarProvider,
-    useSidebar,
+SidebarProvider,
 } from '@/components/ui/sidebar'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {Badge} from "@/components/ui/badge";
-import {NavCollapsible} from "@/components/layout/types";
+import Image from "next/image";
 export default function DashboardLayout({
                                             children
                                         }: {
@@ -72,7 +44,6 @@ export default function DashboardLayout({
     return (
         <Providers>
             <SidebarProvider>
-
             <main className="flex min-h-screen w-full flex-col bg-muted/40">
                 <DesktopNav />
                 <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
@@ -87,7 +58,6 @@ export default function DashboardLayout({
                             {children}
                     </main>
                 </div>
-                {/*<Analytics />*/}
             </main>
             </SidebarProvider>
 
@@ -100,10 +70,16 @@ function DesktopNav() {
         <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
             <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
                 <Link
-                    href="https://vercel.com/templates/next.js/admin-dashboard-tailwind-postgres-react-nextjs"
+                    href="/home"
                     className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
                 >
-                    {/*<VercelLogo className="h-3 w-3 transition-all group-hover:scale-110" />*/}
+                    <Image
+                        src={"/M-logo.png"}
+                        width={36}
+                        height={36}
+                        alt="Avatar"
+                        className="overflow-hidden rounded-full"
+                    />
                     <span className="sr-only">Acme Inc</span>
                 </Link>
 
@@ -154,16 +130,16 @@ function DesktopNav() {
                             <Link href="/settings">Profile</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/src/app/settings/account">Account</Link>
+                            <Link href="/settings/account">Account</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/src/app/settings/appearance">Appearance</Link>
+                            <Link href="/settings/appearance">Appearance</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/src/app/settings/notifications">Notifications</Link>
+                            <Link href="/settings/notifications">Notifications</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/src/app/settings/display">Display</Link>
+                            <Link href="/settings/display">Display</Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -171,7 +147,6 @@ function DesktopNav() {
         </aside>
     );
 }
-
 
 function MobileNav() {
     return (
@@ -184,48 +159,126 @@ function MobileNav() {
             </SheetTrigger>
             <SheetContent side="left" className="sm:max-w-xs">
                 <nav className="grid gap-6 text-lg font-medium">
+                    {/* Logo Link */}
                     <Link
-                        href="#"
-                        className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                        href="/home"
+                        className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
                     >
-                        <Package2 className="h-5 w-5 transition-all group-hover:scale-110" />
-                        <span className="sr-only">Vercel</span>
+                        <Image
+                            src="/M-logo.png"
+                            width={36}
+                            height={36}
+                            alt="Acme Inc Logo"
+                            className="overflow-hidden rounded-full"
+                        />
+                        <span className="sr-only">Acme Inc</span>
                     </Link>
+
+                    {/* Navigation Items with Icons and Labels */}
                     <Link
-                        href="#"
+                        href="/home"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <Home className="h-5 w-5" />
-                        Dashboard
+                        <span>Home</span>
                     </Link>
                     <Link
-                        href="#"
+                        href="/jobs"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
-                        <ShoppingCart className="h-5 w-5" />
-                        Orders
+                        <BriefcaseBusiness className="h-5 w-5" />
+                        <span>Jobs</span>
                     </Link>
                     <Link
-                        href="#"
-                        className="flex items-center gap-4 px-2.5 text-foreground"
-                    >
-                        <Package className="h-5 w-5" />
-                        Products
-                    </Link>
-                    <Link
-                        href="#"
+                        href="/candidates"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <Users2 className="h-5 w-5" />
-                        Customers
+                        <span>Candidates</span>
                     </Link>
                     <Link
-                        href="#"
+                        href="/invitations"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <Mail className="h-5 w-5" />
+                        <span>Invitations</span>
+                    </Link>
+                    <Link
+                        href="/recruiter-profile"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <UserPlus className="h-5 w-5" />
+                        <span>Recruiter Profile</span>
+                    </Link>
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <UserRoundPen className="h-5 w-5" />
+                        <span>Candidate Profile</span>
+                    </Link>
+                    <Link
+                        href="/analytics"
                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                     >
                         <LineChart className="h-5 w-5" />
-                        Settings
+                        <span>Analytics</span>
                     </Link>
+                    <Link
+                        href="/chats"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <MessageCircle className="h-5 w-5" />
+                        <span>Chats</span>
+                    </Link>
+                    <Link
+                        href="/career-compas"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <Compass className="h-5 w-5" />
+                        <span>Career Compas</span>
+                    </Link>
+                    <Link
+                        href="/skill-matcher"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <Target className="h-5 w-5" />
+                        <span>Skill Matcher</span>
+                    </Link>
+                    <Link
+                        href="/growth-tracker"
+                        className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                        <TrendingUp className="h-5 w-5" />
+                        <span>Growth Tracker</span>
+                    </Link>
+
+                    {/* Settings Dropdown with Icon and Label */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground">
+                                <Settings className="h-5 w-5" />
+                                <span>Settings</span>
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start">
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings">Profile</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/account">Account</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/appearance">Appearance</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/notifications">Notifications</Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link href="/settings/display">Display</Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </nav>
             </SheetContent>
         </Sheet>

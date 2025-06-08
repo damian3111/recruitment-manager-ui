@@ -1,17 +1,10 @@
 'use client';
 
-
-import { Bell, Moon, Sun } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
-
+import { Bell} from 'lucide-react';
+import { useState } from 'react';
 
 export function BellNav() {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
-    const dropdownRef = useRef<HTMLDivElement>(null);
 
     return (
         <div className={"px-6"}>

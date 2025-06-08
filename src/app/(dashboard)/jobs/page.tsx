@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Spinner } from '@/components/icons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -14,8 +14,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { JobType, JobFilter, useFilteredJobs } from '@/lib/jobService';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
-import {CandidateFilter, CandidateType, useCandidateByEmail} from '@/lib/candidatesService';
-import ConfirmModal from '@/components/confirmationModal';
+import {useCandidateByEmail} from '@/lib/candidatesService';
+import ConfirmModal from '@/components/modals/confirmationModal';
 import toast from 'react-hot-toast';
 import {
     useDeleteInvite,
@@ -26,7 +26,7 @@ import {
 import { useCurrentUser } from '@/lib/userService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import JobFilters from "@/components/JobFilters";
+import JobFilters from "@/components/layout/filters/JobFilters";
 
 
 export default function JobsPage() {
@@ -39,7 +39,6 @@ export default function JobsPage() {
     const router = useRouter();
     const [filters, setFilters] = useState<JobFilter>({});
 
-    // const [filters, setFilters] = useState<typeof JobFilters>({});
     const debouncedFilters = useDebouncedValue(filters, 500);
     const [focusedField, setFocusedField] = useState<keyof JobFilter | null>(null);
     const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
@@ -189,26 +188,25 @@ export default function JobsPage() {
         );
     };
 
-    // @ts-ignore
-    // @ts-ignore
     return (
         <div className="flex gap-8 p-6 max-w-full ml-2">
-            {/* Filters Section */}
             <motion.div
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="w-1/4 bg-white rounded-2xl shadow-xl p-10 border border-gray-200 sticky top-6"
+                className="w-2/6 bg-white rounded-2xl shadow-xl p-10 border border-gray-200 sticky top-6"
             >
                 <JobFilters
                     filters={filters}
-                    onChange={setFilters}
+                    onChange={v => {
+                        setFilters(v);
+                        setPage(0);
+                    }}
                     focusedField={focusedField}
                     setFocusedField={setFocusedField}
                 />
             </motion.div>
 
-            {/* Jobs List Section */}
             <div className="flex-1 max-w-[64rem] mx-auto space-y-6">
                 {user?.userRole === 'recruiter' && (
                     <div className="flex justify-end">
@@ -233,7 +231,6 @@ export default function JobsPage() {
                                 className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[12.5rem]"
                             >
                                 <div className="relative flex">
-                                    {/* Action Buttons: Top-Right Corner */}
                                     <div className="absolute top-0 right-0 flex items-center gap-3">
                                         {user?.userRole !== 'recruiter' && (
                                             <>
@@ -317,7 +314,6 @@ export default function JobsPage() {
                                         </DropdownMenu>
                                     </div>
 
-                                    {/* Left Column: Title, Company, Location */}
                                     <div className="flex-1 space-y-4">
                                         <h2 className="text-xl font-bold text-gray-900 tracking-tight">
                                             {job.title || 'N/A'}
@@ -330,13 +326,12 @@ export default function JobsPage() {
                                         </p>
                                     </div>
 
-                                    {/* Center Column: Salary, Employment Mode, Experience Level */}
                                     <div className="flex-1 space-y-4">
                                         <p className="text-base font-medium text-gray-700">
                                             Salary:{' '}
                                             <span className="text-blue-600 font-semibold">
                                                 {job.salary_min && job.salary_max
-                                                    ? `${job.salary_min} - ${job.salary_max} ${job.currency || ''}`
+                                                    ? `${job.salary_min} - ${job.salary_max} ${job.currency?.slice(0,15) || ''}`
                                                     : 'N/A'}
                                             </span>
                                         </p>

@@ -18,7 +18,6 @@ const features = [
 ];
 
 export default function HomePage() {
-    // References for scroll-triggered animations
     const featureRef = useRef(null);
     const progressRef = useRef(null);
     const activityRef = useRef(null);
@@ -32,12 +31,8 @@ export default function HomePage() {
     const notesInView = useInView(notesRef, { once: false, margin: '-100px' });
     const metricsInView = useInView(metricsRef, { once: false, margin: '-100px' });
 
-    // Optional: Log user for debugging
-    console.log('User:', user);
-
     return (
         <main className="min-h-screen bg-gradient-to-b from-teal-50 to-white p-10 space-y-16 overflow-auto">
-            {/* Sticky Header */}
             <motion.header
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -52,7 +47,6 @@ export default function HomePage() {
                 </p>
             </motion.header>
 
-            {/* Hero Section */}
             <motion.section
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -72,7 +66,6 @@ export default function HomePage() {
                 </Link>
             </motion.section>
 
-            {/* Feature Navigation Grid */}
             <motion.section
                 ref={featureRef}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -100,7 +93,6 @@ export default function HomePage() {
                 ))}
             </motion.section>
 
-            {/* Progress & Daily Tip Section */}
             <motion.section
                 ref={progressRef}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -138,7 +130,6 @@ export default function HomePage() {
                 </div>
             </motion.section>
 
-            {/* Key Metrics Section */}
             <motion.section
                 ref={metricsRef}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -163,7 +154,6 @@ export default function HomePage() {
                 </div>
             </motion.section>
 
-            {/* Activity Feed */}
             <motion.section
                 ref={activityRef}
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -192,7 +182,6 @@ export default function HomePage() {
                 </ul>
             </motion.section>
 
-            {/* Quick Notes */}
             <motion.section
                 ref={notesRef}
                 initial={{ opacity: 0, scale: 0.95 }}

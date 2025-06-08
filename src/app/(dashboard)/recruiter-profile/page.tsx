@@ -1,19 +1,9 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import toast from 'react-hot-toast';
-import {
-    CandidateType,
-    useCandidate,
-    useCandidateByEmail,
-    useCreateCandidate,
-    useUpdateCandidate,
-} from '@/lib/candidatesService';
 import * as z from 'zod';
 import { useCurrentUser } from '@/lib/userService';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { JobType, useJobsByUser } from '@/lib/jobService';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -50,8 +40,6 @@ const candidateSchema = z.object({
     location: z.string().optional(),
     skills: z.string().optional(),
 });
-
-type CandidateFormType = z.infer<typeof candidateSchema>;
 
 export default function RecruiterProfile() {
     const { data: user } = useCurrentUser();
@@ -142,7 +130,6 @@ export default function RecruiterProfile() {
                                         >
                                             <Card className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[12.5rem]">
                                                 <div className="relative flex gap-6">
-                                                    {/* Action Buttons: Top-Right Corner */}
                                                     <div className="absolute top-0 right-0 flex items-center gap-3">
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
@@ -168,7 +155,6 @@ export default function RecruiterProfile() {
                                                         </DropdownMenu>
                                                     </div>
 
-                                                    {/* Left Column: Title, Description */}
                                                     <div className="flex-1 space-y-4">
                                                         <h2 className="text-xl font-bold text-gray-900 tracking-tight">
                                                             {job.title || 'N/A'}
@@ -181,7 +167,6 @@ export default function RecruiterProfile() {
                                                         </p>
                                                     </div>
 
-                                                    {/* Right Column: Salary, Posted, Metadata */}
                                                     <div className="flex-1 space-y-4">
                                                         <p className="text-sm font-medium text-gray-700">
                                                             <span className="text-blue-600 font-semibold">
@@ -199,7 +184,6 @@ export default function RecruiterProfile() {
                                                         <p className="text-sm text-gray-600">
                                                             Location: {job.location || 'N/A'}
                                                         </p>
-
                                                     </div>
                                                 </div>
                                             </Card>

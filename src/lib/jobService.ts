@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-// import axios from 'axios';
 import axios from '../utils/api';
 
 export type JobType = {
@@ -69,9 +68,8 @@ export const useFilteredJobs = (filter: JobFilter, page = 0, size = 10) => {
         queryKey: ['filteredJobs', filter, page, size],
         queryFn: async () => {
             const res = await axios.post(`${API_URL}/filter?page=${page}&size=${size}`, filter);
-            return res.data; // zakładamy Page<Job>
+            return res.data;
         },
-        // keepPreviousData: true,
     });
 };
 
@@ -82,7 +80,7 @@ export const useJobsByUser = (userId: number) => {
             const res = await axios.get(`${API_URL}/user/${userId}`);
             return res.data;
         },
-        enabled: !!userId, // only run if userId is provided
+        enabled: !!userId,
         staleTime: 1000 * 60,
     });
 };
@@ -140,7 +138,6 @@ export const useDeleteJob = () => {
             await axios.delete(`${API_URL}/${id}`);
         },
         onMutate: async (id: number) => {
-            // Optimistic update
             await queryClient.cancelQueries({ queryKey: ['jobs'] });
 
             const previousJobs = queryClient.getQueryData<JobType[]>(['jobs']);
@@ -153,7 +150,6 @@ export const useDeleteJob = () => {
         },
         onError: (err, id, context) => {
             console.error('❌ Error deleting job:', err);
-            // Rollback on error
             if (context?.previousJobs) {
                 queryClient.setQueryData(['jobs'], context.previousJobs);
             }

@@ -1,4 +1,3 @@
-// context/theme-context.tsx
 import { createContext, useContext, useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -14,7 +13,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [theme, setTheme] = useState<Theme>('system'); // Default to system
 
     useEffect(() => {
-        // Load theme from localStorage
         if (typeof window !== 'undefined') {
             const storedTheme = localStorage.getItem('theme') as Theme | null;
             if (storedTheme && ['light', 'dark', 'system'].includes(storedTheme)) {
@@ -40,7 +38,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
         applyTheme();
 
-        // Listen for system theme changes if theme is 'system'
         if (theme === 'system') {
             const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
             const handleChange = () => applyTheme();

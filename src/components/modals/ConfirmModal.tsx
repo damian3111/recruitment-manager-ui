@@ -1,7 +1,7 @@
 'use client';
 
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
-import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
+import { Button } from '../ui/button';
 import toast from "react-hot-toast";
 import {
     useDeleteInvite,
@@ -32,20 +32,12 @@ export function ConfirmModal({
                                  jobId
                              }: ConfirmModalProps) {
 
-    const [sentJobIds, setSentJobIds] = useState<number[]>([]);
     const { data: user } = useCurrentUser();
-// const { data: invites, refetch, isFetching } = useInvitesByCandidateAndRecruiter(candidateId, user?.id);
     const sendInvite = useSendInvite();
-    const cancelInvite = useUpdateInviteStatus();
-    const deleteInvite = useDeleteInvite();
     const {data: candidate, isLoading, error, refetch} = useCandidateByEmail(user?.email);
 
-    console.log(user);
     const handleSend = () => {
         toast.success('✅ Application Sent!');
-
-        // if (!user?.id) return;
-        //
         if (!candidate) return;
 
         sendInvite.mutate(
@@ -57,15 +49,12 @@ export function ConfirmModal({
             },
             {
                 onSuccess: () => {
-                    // setSentJobIds(prev => [...prev, jobId]);
                     toast.success('✅ Application Sent!')
                     onSuccess();
                 },
                 onError: () => toast.error('❌ Failed to send invitation.'),
             }
         );
-
-
     };
 
     return (

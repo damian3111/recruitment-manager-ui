@@ -6,28 +6,14 @@ import { notFound } from 'next/navigation';
 import { Spinner } from '@/components/icons';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { ArrowLeft, Bookmark } from 'lucide-react';
 import { useState } from 'react';
 
-// Sample skills for demonstration
 const SAMPLE_SKILLS = [
     { name: 'JavaScript', proficiencyLevel: 'Expert' },
     { name: 'Python', proficiencyLevel: 'Good' },
     { name: 'SQL', proficiencyLevel: 'Familiar' },
 ];
-
-// Helper to parse skills from requirements string (unused since SAMPLE_SKILLS is specified)
-const parseSkillsFromRequirements = (requirements: string | undefined): { name: string; proficiencyLevel: string }[] => {
-    if (!requirements) return SAMPLE_SKILLS;
-    return requirements
-        .split(',')
-        .map((skill) => skill.trim())
-        .filter((skill) => skill)
-        .map((skill) => ({ name: skill, proficiencyLevel: 'N/A' }));
-};
-
-// Helper to get proficiency-based tag colors
 const getProficiencyColor = (level: string) => {
     switch (level) {
         case 'Expert':
@@ -41,7 +27,6 @@ const getProficiencyColor = (level: string) => {
     }
 };
 
-// Helper Components
 function Info({ label, value }: { label: string; value?: string | number }) {
     return (
         <div className="flex flex-col">
@@ -50,7 +35,6 @@ function Info({ label, value }: { label: string; value?: string | number }) {
         </div>
     );
 }
-
 function Section({ label, children }: { label: string; children: React.ReactNode }) {
     return (
         <div className="relative">
@@ -61,7 +45,6 @@ function Section({ label, children }: { label: string; children: React.ReactNode
         </div>
     );
 }
-
 export default function JobDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -110,7 +93,6 @@ export default function JobDetailPage() {
                     </motion.button>
                 </div>
 
-                {/* Action Buttons */}
                 <div className="absolute top-7 right-10 flex items-center gap-3">
                     {/*<Button*/}
                     {/*    className="bg-teal-600 text-white hover:bg-teal-700 rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-200"*/}
@@ -133,7 +115,6 @@ export default function JobDetailPage() {
                 </div>
 
                 <CardContent className="p-0 pt-8 space-y-8">
-                    {/* Header Section */}
                     <div>
                         <motion.h1
                             initial={{ opacity: 0, x: -20 }}
@@ -153,7 +134,6 @@ export default function JobDetailPage() {
                         </motion.p>
                     </div>
 
-                    {/* Info Grid */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -179,7 +159,6 @@ export default function JobDetailPage() {
                         />
                     </motion.div>
 
-                    {/* Additional Sections */}
                     {job.description && (
                         <Section label="Job Description">
                             <motion.p
@@ -228,7 +207,6 @@ export default function JobDetailPage() {
                             </motion.p>
                         </Section>
                     )}
-                    {/* Skills Section */}
                     <Section label="Skills">
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
