@@ -9,33 +9,47 @@ import api from "@/utils/api";
 import { motion } from 'framer-motion';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Suspense, useEffect} from "react";
+
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+function getCookie(name: string): string | null {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+    return null;
+}
+
 function OAuthHandler() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    useEffect(() => {
-        const token = searchParams.get("token");
-        const error = searchParams.get("error");
-        if (error) {
-            toast.error(`Google login failed: ${error}`);
-            return;
-        }
-        if (token) {
-            const expires = new Date(Date.now() + 3600000); // 1 hour expiry
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
-            document.cookie = cookieString;
-            toast.success("Google login successful!");
-            router.push("/home");
-        }
-    }, [searchParams, router]);
+    function OAuthHandler() {
+        const router = useRouter();
+        const searchParams = useSearchParams();
 
-    return null;
-}
+        useEffect(() => {
+            const success = searchParams.get("success");
+            const error = searchParams.get("error");
+
+            if (success === "true") {
+                const token = getCookie("authToken");
+                if (token) {
+                    toast.success("Google login successful!");
+                    router.push("/home");
+                } else {
+                    toast.error("Authentication failed: No token received");
+                    router.push("/login?error=no_token");
+                }
+            } else if (error) {
+                toast.error(`Authentication failed: ${error}`);
+            }
+        }, [searchParams, router]);
+
+        return null;
+    }
 
 export default function LoginPage() {
     const {
@@ -51,6 +65,8 @@ export default function LoginPage() {
         mutationFn: async (data: { email: string; password: string }) => {
             try {
                 const response = await api.post("/api/auth/login", data);
+                const token = response.data;
+
                 return response.data;
             } catch (error) {
                 console.error('Login error:', error);
@@ -59,7 +75,7 @@ export default function LoginPage() {
         },
         onSuccess: (token) => {
             const expires = new Date(Date.now() + 3600000);
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
             document.cookie = cookieString;
             router.push('/home');
             toast.success("Login successful!");
@@ -70,9 +86,9 @@ export default function LoginPage() {
     });
 
     const handleGoogleLogin = () => {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
-        window.location.href = `${backendUrl}/oauth2/authorization/google`;
-    };
+        window.location.href = "https://java-application-uo30.onrender.com/oauth2/authorization/google";
+        // window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    }
 
     const cardVariants = {
         hidden: { opacity: 0, y: 50, scale: 0.95 },
@@ -96,6 +112,9 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
+            <Suspense>
+                <OAuthHandler />
+            </Suspense>
             <motion.div
                 className="absolute inset-0"
                 animate={{
