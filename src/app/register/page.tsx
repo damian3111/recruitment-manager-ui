@@ -42,7 +42,7 @@ export default function RegisterPage() {
             router.push("/login");
         },
         onError: (error) => {
-            toast.error(error?.message || "Registration failed");
+            toast.error("User already exists " + error?.message);
         }
     });
 
@@ -189,11 +189,11 @@ export default function RegisterPage() {
                         </div>
                     </div>
 
-                    {mutation.isError && (
-                        <p className="text-sm text-red-300 text-center">
-                            {(mutation.error as Error).message}
-                        </p>
-                    )}
+                    {/*{mutation.isError && (*/}
+                    {/*    <p className="text-sm text-red-300 text-center">*/}
+                    {/*        {(mutation.error as Error).message}*/}
+                    {/*    </p>*/}
+                    {/*)}*/}
 
                     <motion.button
                         type="submit"

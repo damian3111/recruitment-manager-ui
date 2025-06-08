@@ -80,15 +80,8 @@ export default function LoginPage() {
 
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
-            try {
                 const response = await api.post("/api/auth/login", data);
-                const token = response.data;
-
                 return response.data;
-            } catch (error) {
-                console.error('Login error:', error);
-                throw error;
-            }
         },
         onSuccess: (token) => {
             const expires = new Date(Date.now() + 3600000);
@@ -98,6 +91,7 @@ export default function LoginPage() {
             toast.success("Login successful!");
         },
         onError: (error: any) => {
+            console.error('Login error:', error);
             toast.error(error?.message || 'Login failed');
         },
     });
