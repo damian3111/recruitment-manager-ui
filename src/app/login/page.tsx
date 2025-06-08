@@ -37,7 +37,7 @@ function OAuthHandler() {
             const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
             document.cookie = cookieString;
 
-            toast.success("Google login successful!");
+            toast.success("Google login successful");
             router.push("/home");
         } else if (success === "true") {
             toast.error("Authentication failed: No token received");
