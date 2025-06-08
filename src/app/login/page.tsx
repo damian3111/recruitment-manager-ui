@@ -23,31 +23,32 @@ function getCookie(name: string): string | null {
 }
 
 
-    function OAuthHandler() {
-        const router = useRouter();
-        const searchParams = useSearchParams();
+function OAuthHandler() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
-        useEffect(() => {
-            const success = searchParams.get("success");
-            const error = searchParams.get("error");
+    useEffect(() => {
+        const success = searchParams.get("success");
+        const error = searchParams.get("error");
+        const token = searchParams.get("token");
 
-            if (success === "true") {
-                const token = getCookie("authToken");
-                if (token) {
-                    toast.success("Google login successful!");
-                    router.push("/home");
-                } else {
-                    toast.error("Authentication failed: No token received");
-                    router.push("/login?error=no_token");
-                }
-            } else if (error) {
-                toast.error(`Authentication failed: ${error}`);
-            }
-        }, [searchParams, router]);
+        if (token) {
+            const expires = new Date(Date.now() + 3600000); // 1h
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
+            document.cookie = cookieString;
 
-        return null;
-    }
+            toast.success("Google login successful!");
+            router.push("/home");
+        } else if (success === "true") {
+            toast.error("Authentication failed: No token received");
+            router.push("/login?error=no_token");
+        } else if (error) {
+            toast.error(`Authentication failed: ${error}`);
+        }
+    }, [searchParams, router]);
 
+    return null;
+}
 export default function LoginPage() {
     const {
         register,
