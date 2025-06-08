@@ -9,12 +9,10 @@ import api from "@/utils/api";
 import { motion } from 'framer-motion';
 import {useRouter, useSearchParams} from 'next/navigation';
 import {Suspense, useEffect} from "react";
-
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
-
 
 function OAuthHandler() {
     const router = useRouter();
@@ -22,15 +20,15 @@ function OAuthHandler() {
 
     useEffect(() => {
         const token = searchParams.get("token");
+        const error = searchParams.get("error");
+        if (error) {
+            toast.error(`Google login failed: ${error}`);
+            return;
+        }
         if (token) {
             const expires = new Date(Date.now() + 3600000); // 1 hour expiry
-            // const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
-            //     process.env.NODE_ENV === "production" ? "Secure" : ""
-            // }`;
-            // const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
-
-            // document.cookie = cookieString;
-
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
+            document.cookie = cookieString;
             toast.success("Google login successful!");
             router.push("/home");
         }
@@ -38,6 +36,7 @@ function OAuthHandler() {
 
     return null;
 }
+
 export default function LoginPage() {
     const {
         register,
@@ -52,8 +51,6 @@ export default function LoginPage() {
         mutationFn: async (data: { email: string; password: string }) => {
             try {
                 const response = await api.post("/api/auth/login", data);
-                const token = response.data;
-
                 return response.data;
             } catch (error) {
                 console.error('Login error:', error);
@@ -62,7 +59,7 @@ export default function LoginPage() {
         },
         onSuccess: (token) => {
             const expires = new Date(Date.now() + 3600000);
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
             document.cookie = cookieString;
             router.push('/home');
             toast.success("Login successful!");
@@ -73,9 +70,9 @@ export default function LoginPage() {
     });
 
     const handleGoogleLogin = () => {
-        window.location.href = "https://java-application-uo30.onrender.com/oauth2/authorization/google";
-        // window.location.href = "http://localhost:8080/oauth2/authorization/google";
-    }
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
+        window.location.href = `${backendUrl}/oauth2/authorization/google`;
+    };
 
     const cardVariants = {
         hidden: { opacity: 0, y: 50, scale: 0.95 },
@@ -99,9 +96,6 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
-            <Suspense fallback={<div>Loading...</div>}>
-                <OAuthHandler />
-            </Suspense>
             <motion.div
                 className="absolute inset-0"
                 animate={{
