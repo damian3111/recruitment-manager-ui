@@ -15,21 +15,20 @@ const loginSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+
 function OAuthHandler() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     useEffect(() => {
         const token = searchParams.get("token");
-        const error = searchParams.get("error");
-        if (error) {
-            toast.error(`Login failed: ${error}`);
-            return;
-        }
         if (token) {
             const expires = new Date(Date.now() + 3600000); // 1 hour expiry
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
+                process.env.NODE_ENV === "production" ? "Secure" : ""
+            }`;
             document.cookie = cookieString;
+
             toast.success("Google login successful!");
             router.push("/home");
         }
