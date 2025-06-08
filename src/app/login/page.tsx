@@ -8,28 +8,21 @@ import toast from "react-hot-toast";
 import api from "@/utils/api";
 import { motion } from 'framer-motion';
 import {useRouter, useSearchParams} from 'next/navigation';
-import {useEffect} from "react";
+import {Suspense, useEffect} from "react";
 
 const loginSchema = z.object({
     email: z.string().email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export default function LoginPage() {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
-        resolver: zodResolver(loginSchema),
-    });
+function OAuthHandler() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
     useEffect(() => {
         const token = searchParams.get("token");
         if (token) {
-            const expires = new Date(Date.now() + 3600000);
+            const expires = new Date(Date.now() + 3600000); // 1 hour expiry
             const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
                 process.env.NODE_ENV === "production" ? "Secure" : ""
             }`;
@@ -40,6 +33,18 @@ export default function LoginPage() {
         }
     }, [searchParams, router]);
 
+    return null;
+}
+
+export default function LoginPage() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm({
+        resolver: zodResolver(loginSchema),
+    });
+    const router = useRouter();
 
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
@@ -91,6 +96,9 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
+            <Suspense fallback={<div>Loading...</div>}>
+                <OAuthHandler />
+            </Suspense>
             <motion.div
                 className="absolute inset-0"
                 animate={{
