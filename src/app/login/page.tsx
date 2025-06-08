@@ -27,9 +27,9 @@ function OAuthHandler() {
             // const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
             //     process.env.NODE_ENV === "production" ? "Secure" : ""
             // }`;
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
+            // const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
 
-            document.cookie = cookieString;
+            // document.cookie = cookieString;
 
             toast.success("Google login successful!");
             router.push("/home");
