@@ -24,9 +24,11 @@ function OAuthHandler() {
         const token = searchParams.get("token");
         if (token) {
             const expires = new Date(Date.now() + 3600000); // 1 hour expiry
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
-                process.env.NODE_ENV === "production" ? "Secure" : ""
-            }`;
+            // const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${
+            //     process.env.NODE_ENV === "production" ? "Secure" : ""
+            // }`;
+            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=None; Secure`;
+
             document.cookie = cookieString;
 
             toast.success("Google login successful!");
