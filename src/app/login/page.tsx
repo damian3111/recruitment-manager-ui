@@ -22,7 +22,9 @@ function getCookie(name: string): string | null {
     return null;
 }
 
-
+function clearCookie(name: string) {
+    document.cookie = `${name}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+}
 function OAuthHandler() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -33,6 +35,7 @@ function OAuthHandler() {
         const token = searchParams.get("token");
 
         if (token) {
+            clearCookie('authToken'); // Clear existing cookie
             const expires = new Date(Date.now() + 3600000); // 1h
             const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
             document.cookie = cookieString;
