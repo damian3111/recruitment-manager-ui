@@ -16,7 +16,6 @@ import { TreeSelect as AntTreeSelect } from 'antd';
 import {BaseSelectRef} from "rc-select";
 import {CustomTagProps} from "rc-select/es/BaseSelect";
 
-// Maximum number of selectable skill-proficiency pairs
 const PROFICIENCY_LEVELS = [
     { value: 'Beginner', label: 'Beginner' },
     { value: 'Familiar', label: 'Familiar' },
@@ -25,7 +24,6 @@ const PROFICIENCY_LEVELS = [
     { value: 'Expert', label: 'Expert' },
 ];
 
-// Transform treeData to include proficiency levels
 const generateTreeDataWithProficiency = (baseTreeData: any[]) => {
     return baseTreeData.map((category) => ({
         ...category,
@@ -265,7 +263,6 @@ export default function CandidateFilters({
         const currentSkills = filters.skills || [];
         let updatedSkills = [...currentSkills];
 
-        // values to tablica wybranych wartości - obsłuż je wszystkie:
         values.forEach(value => {
             if (isSkillNode(value)) {
                 const newProficiencies = PROFICIENCY_LEVELS.map((prof) => ({
@@ -295,14 +292,12 @@ export default function CandidateFilters({
     const handleDeselect = (values: string[], option: any) => {
         let updatedSkills = filters.skills || [];
 
-        // Process each deselected value
         values.forEach((value) => {
             if (isSkillNode(value)) {
                 // Remove all proficiency levels for the skill
                 updatedSkills = updatedSkills.filter((s) => s.name !== value);
             } else {
                 const { name, proficiencyLevel } = decodeSkill(value);
-                // Remove specific proficiency level
                 updatedSkills = updatedSkills.filter(
                     (s) => s.name !== name || s.proficiencyLevel !== proficiencyLevel
                 );
@@ -592,7 +587,7 @@ export default function CandidateFilters({
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, ease: 'easeOut', delay: 0.65 }}
-                className="flex gap-4"
+                className="flex flex-row max-2xl:flex-col gap-4"
             >
                 <div className="flex-1">
                     <Label htmlFor="applied_date_from" className="block text-base font-semibold text-gray-900 mb-2">
@@ -603,7 +598,7 @@ export default function CandidateFilters({
                         type="date"
                         value={filters.applied_date_from || ''}
                         onChange={(e) => handleInputChange(e, 'applied_date_from')}
-                        className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                        className="w-34 px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
                     />
                 </div>
                 <div className="flex-1">
@@ -615,7 +610,7 @@ export default function CandidateFilters({
                         type="date"
                         value={filters.applied_date_to || ''}
                         onChange={(e) => handleInputChange(e, 'applied_date_to')}
-                        className="w-full px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
+                        className="w-34 px-5 py-3 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-500 transition-all duration-300 hover:bg-gray-100 hover:border-indigo-300"
                     />
                 </div>
             </motion.div>

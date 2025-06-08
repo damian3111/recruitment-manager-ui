@@ -3,11 +3,9 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
 import { z } from "zod";
-import axios from "axios";
 import toast from "react-hot-toast";
-import api from "@/utils/api"; // ✅ Use the custom API client
+import api from "@/utils/api";
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -25,16 +23,12 @@ export default function LoginPage() {
         resolver: zodResolver(loginSchema),
     });
     const router = useRouter();
-    // const GOOGLE_AUTH_URL = `http://localhost:8080/oauth2/authorization/google`;
-    const [serverError, setServerError] = useState("");
 
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
             try {
                 const response = await api.post("/api/auth/login", data);
-                // Extract token
                 const token = response.data;
-                console.log("token: " + token);
 
                 return response.data;
             } catch (error) {
@@ -43,8 +37,7 @@ export default function LoginPage() {
             }
         },
         onSuccess: (token) => {
-            // router.push('/home');
-            const expires = new Date(Date.now() + 3600000); // 24 hours
+            const expires = new Date(Date.now() + 3600000);
             const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
             document.cookie = cookieString;
             router.push('/home');
@@ -59,7 +52,6 @@ export default function LoginPage() {
         window.location.href = "https://java-application-uo30.onrender.com/oauth2/authorization/google";
     }
 
-    // Animation variants for more controlled animations
     const cardVariants = {
         hidden: { opacity: 0, y: 50, scale: 0.95 },
         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
@@ -70,9 +62,9 @@ export default function LoginPage() {
             x: [0, Math.random() * 150 - 75, Math.random() * 150 - 75, 0],
             y: [0, Math.random() * 150 - 75, Math.random() * 150 - 75, 0],
             scale: [1, 1.1 + Math.random() * 0.2, 0.9 - Math.random() * 0.1, 1],
-            opacity: [0.2, 0.5, 0.3, 0.2], // Adjusted opacity for calmer look
+            opacity: [0.2, 0.5, 0.3, 0.2],
             transition: {
-                duration: 20 + i * 5, // Vary duration
+                duration: 20 + i * 5,
                 repeat: Infinity,
                 repeatType: "mirror" as const,
                 ease: "easeInOut",
@@ -82,7 +74,6 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
-            {/* Background Gradient Animation */}
             <motion.div
                 className="absolute inset-0"
                 animate={{
@@ -100,7 +91,6 @@ export default function LoginPage() {
                 }}
             />
 
-            {/* Floating Orbs - More of them, varied sizes and positions */}
             {[...Array(6)].map((_, i) => (
                 <motion.div
                     key={i}
@@ -119,7 +109,6 @@ export default function LoginPage() {
                 />
             ))}
 
-            {/* Login Card */}
             <motion.div
                 variants={cardVariants}
                 initial="hidden"
@@ -202,9 +191,8 @@ export default function LoginPage() {
                     whileTap={{ scale: 0.98 }}
                     className="w-full flex items-center justify-center gap-3 bg-white/10 border border-white/20 py-3 rounded-xl hover:bg-white/20 transition duration-300 ease-in-out font-medium text-white text-lg shadow-md"
                 >
-                    {/* Placeholder for Google logo - replace with actual Image component pointing to your asset if available */}
                     <img
-                        src="https://placehold.co/24x24/ffffff/000000?text=G" // Simple 'G' in a square
+                        src="https://placehold.co/24x24/ffffff/000000?text=G"
                         alt="Google logo placeholder"
                         className="rounded-full"
                         width={24}
@@ -213,38 +201,8 @@ export default function LoginPage() {
                     Login with Google
                 </motion.button>
             </motion.div>
-            {/* Toast notifications */}
             <div id="toast-container" className="absolute top-4 right-4 z-50">
-                {/* This is where your toast notifications will render. You'll need to set up a ToastProvider if you're using react-hot-toast */}
             </div>
         </div>
     );
 }
-
-// Simple ToastProvider for react-hot-toast if not already set up
-// You would typically wrap your root component with this.
-// import { Toaster } from 'react-hot-toast';
-// function App() {
-//   return (
-//     <>
-//       <LoginPage />
-//       <Toaster />
-//     </>
-//   );
-// }
-
-// Ensure Tailwind CSS is configured in your project.
-// Add the following to your tailwind.config.js if not already present:
-// module.exports = {
-//   theme: {
-//     extend: {
-//       fontFamily: {
-//         inter: ['Inter', 'sans-serif'],
-//       },
-//     },
-//   },
-//   plugins: [],
-// }
-
-// To use 'Inter' font, ensure it's imported in your global CSS (e.g., globals.css)
-// @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
