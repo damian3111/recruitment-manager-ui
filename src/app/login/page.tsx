@@ -22,9 +22,6 @@ function getCookie(name: string): string | null {
     return null;
 }
 
-function OAuthHandler() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
 
     function OAuthHandler() {
         const router = useRouter();
@@ -55,7 +52,7 @@ export default function LoginPage() {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: {errors},
     } = useForm({
         resolver: zodResolver(loginSchema),
     });
@@ -91,8 +88,8 @@ export default function LoginPage() {
     }
 
     const cardVariants = {
-        hidden: { opacity: 0, y: 50, scale: 0.95 },
-        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.7, ease: "easeOut" } },
+        hidden: {opacity: 0, y: 50, scale: 0.95},
+        visible: {opacity: 1, y: 0, scale: 1, transition: {duration: 0.7, ease: "easeOut"}},
     };
 
     const orbVariants = {
@@ -111,9 +108,10 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
+        <div
+            className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-300 via-blue-500 to-purple-500 relative overflow-hidden font-inter">
             <Suspense>
-                <OAuthHandler />
+                <OAuthHandler/>
             </Suspense>
             <motion.div
                 className="absolute inset-0"
@@ -209,8 +207,8 @@ export default function LoginPage() {
                     <motion.button
                         type="submit"
                         disabled={mutation.isPending}
-                        whileHover={{ scale: 1.02, boxShadow: "0 15px 30px rgba(0, 0, 0, 0.2)" }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{scale: 1.02, boxShadow: "0 15px 30px rgba(0, 0, 0, 0.2)"}}
+                        whileTap={{scale: 0.98}}
                         className="w-full bg-gradient-to-r from-blue-600 to-purple-800 text-white py-4 rounded-xl font-bold text-xl shadow-lg hover:from-blue-500 hover:to-purple-700 transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {mutation.isPending ? "Logging in..." : "Login"}
@@ -219,7 +217,7 @@ export default function LoginPage() {
 
                 <div className="relative my-8">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-white/20" />
+                        <div className="w-full border-t border-white/20"/>
                     </div>
                     <div className="relative flex justify-center text-sm">
                         <span className="bg-white/10 backdrop-blur-sm px-4 text-white/80 rounded-full py-1">or continue with</span>
@@ -228,8 +226,8 @@ export default function LoginPage() {
 
                 <motion.button
                     onClick={handleGoogleLogin}
-                    whileHover={{ scale: 1.02, boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)" }}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={{scale: 1.02, boxShadow: "0 15px 30px rgba(0, 0, 0, 0.1)"}}
+                    whileTap={{scale: 0.98}}
                     className="w-full flex items-center justify-center gap-3 bg-white/10 border border-white/20 py-3 rounded-xl hover:bg-white/20 transition duration-300 ease-in-out font-medium text-white text-lg shadow-md"
                 >
                     <img
