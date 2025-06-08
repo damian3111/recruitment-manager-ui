@@ -35,18 +35,34 @@ function OAuthHandler() {
         const token = searchParams.get("token");
 
         if (token) {
-            clearCookie('authToken'); // Clear existing cookie
-            const expires = new Date(Date.now() + 3600000); // 1h
-            const cookieString = `authToken=${encodeURIComponent(token)}; Path=/; Expires=${expires.toUTCString()}; SameSite=Lax; ${process.env.NODE_ENV === "production" ? "Secure" : ""}`;
-            document.cookie = cookieString;
+            // Make API call to validate OAuth token
+            api
+                .post("/api/auth/oauth-login", null, { params: { token: decodeURIComponent(token) } })
+                .then((response) => {
+                    const jwtToken = response.data;
+                    clearCookie('authToken'); // Clear existing cookie
+                    const expires = new Date(Date.now() + 3600000); // 1h
+                    const isProduction = process.env.NODE_ENV === "production";
+                    const cookieString = `authToken=${encodeURIComponent(jwtToken)}; Path=/; Expires=${expires.toUTCString()}; ${
+                        isProduction ? "SameSite=None; Secure" : "SameSite=Lax"
+                    }`;
+                    console.log('Setting OAuth cookie:', cookieString); // Debug
+                    document.cookie = cookieString;
 
-            toast.success("Google login successful");
-            router.push("/home");
+                    toast.success("Google login successful");
+                    router.push("/home");
+                })
+                .catch((err) => {
+                    console.error('OAuth login error:', err);
+                    toast.error("Authentication failed: Invalid token");
+                    router.push("/login?error=invalid_token");
+                });
         } else if (success === "true") {
             toast.error("Authentication failed: No token received");
             router.push("/login?error=no_token");
         } else if (error) {
             toast.error(`Authentication failed: ${error}`);
+            router.push("/login?error=auth_failed");
         }
     }, [searchParams, router]);
 
