@@ -42,7 +42,7 @@ export default function RegisterPage() {
             router.push("/login");
         },
         onError: (error) => {
-            toast.error("User already exists " + error?.message);
+            toast.error("User already exists.");
         }
     });
 

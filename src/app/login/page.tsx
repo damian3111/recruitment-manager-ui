@@ -92,7 +92,7 @@ export default function LoginPage() {
         },
         onError: (error: any) => {
             console.error('Login error:', error);
-            toast.error('Login failed');
+            toast.error('Login failed' + error?.message);
         },
     });
 
