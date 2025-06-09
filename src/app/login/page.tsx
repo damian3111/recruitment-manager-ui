@@ -92,7 +92,7 @@ export default function LoginPage() {
         },
         onError: (error: any) => {
             console.error('Login error:', error);
-            toast.error(error?.message || 'Login failed');
+            toast.error('Login failed');
         },
     });
 
@@ -212,11 +212,11 @@ export default function LoginPage() {
                         )}
                     </div>
 
-                    {mutation.isError && (
-                        <p className="text-sm text-red-300">
-                            {(mutation.error as Error).message}
-                        </p>
-                    )}
+                    {/*{mutation.isError && (*/}
+                    {/*    <p className="text-sm text-red-300">*/}
+                    {/*        {(mutation.error as Error).message}*/}
+                    {/*    </p>*/}
+                    {/*)}*/}
 
                     <motion.button
                         type="submit"
