@@ -80,7 +80,7 @@ export default function LoginPage() {
 
     const mutation = useMutation({
         mutationFn: async (data: { email: string; password: string }) => {
-                const response = await api.post("/api-auth/login", data);
+                const response = await api.post("/api/auth/login", data);
                 return response.data;
         },
         onSuccess: (token) => {
