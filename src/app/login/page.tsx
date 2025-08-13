@@ -35,7 +35,6 @@ function OAuthHandler() {
         const token = searchParams.get("token");
 
         if (token) {
-            // Make API call to validate OAuth token
             api
                 .post("/api/auth/oauth-login", null, { params: { token: decodeURIComponent(token) } })
                 .then((response) => {
@@ -46,9 +45,7 @@ function OAuthHandler() {
                     const cookieString = `authToken=${encodeURIComponent(jwtToken)}; Path=/; Expires=${expires.toUTCString()}; ${
                         isProduction ? "SameSite=None; Secure" : "SameSite=Lax"
                     }`;
-                    console.log('Setting OAuth cookie:', cookieString); // Debug
                     document.cookie = cookieString;
-
                     toast.success("Google login successful");
                     router.push("/home");
                 })
@@ -91,8 +88,11 @@ export default function LoginPage() {
             toast.success("Login successful!");
         },
         onError: (error: any) => {
-            console.error('Login error:', error);
-            toast.error('Login failed' + error?.message);
+            if (error.status == 401){
+                toast.error('Wrong credentials');
+            }else {
+                toast.error('Confirm your email. Check your Email Inbox');
+            }
         },
     });
 
@@ -184,7 +184,7 @@ export default function LoginPage() {
                             id="password"
                             type="password"
                             {...register("password")}
-                            className="w-full p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+                            className="w-full mb-8 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
                             placeholder="••••••••"
                         />
                         {errors.password && (
