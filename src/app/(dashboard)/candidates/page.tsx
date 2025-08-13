@@ -77,7 +77,6 @@ export default function CandidatesPage() {
         setShowConfirm(true);
     };
 
-
     return (
         <div className="flex gap-8 p-6 max-w-full ml-2">
             {/* Filters Section */}
@@ -100,14 +99,16 @@ export default function CandidatesPage() {
 
             {/* Candidates List Section */}
             <div className="flex-1 max-w-[64rem] mx-auto space-y-6">
-                {user?.userRole === 'recruited' && <div className="flex justify-end">
-                    <Button
-                        onClick={() => router.push('/profile')}
-                        className="text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                    >
-                        Update Profile
-                    </Button>
-                </div>}
+                {user?.userRole === 'recruited' && (
+                    <div className="flex justify-end">
+                        <Button
+                            onClick={() => router.push('/profile')}
+                            className="text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                        >
+                            Update Profile
+                        </Button>
+                    </div>
+                )}
                 <AnimatePresence>
                     {candidates?.content?.map((candidate: CandidateType) => (
                         <motion.div
@@ -118,16 +119,41 @@ export default function CandidatesPage() {
                             transition={{ duration: 0.3 }}
                         >
                             <Card
-                                className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[12.5rem]"
+                                className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[12.5rem] flex flex-row gap-4"
                             >
-                                <div className="relative flex">
-                                    {/* Action Buttons: Top-Right Corner */}
-                                    <div className="absolute top-0 right-0 flex items-center gap-3">
+                                {/* Left Column: Name, Email */}
+                                <div className="flex-1 space-y-4">
+                                    <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                                        {candidate.headline || 'N/A'}
+                                    </h2>
+                                    <p className="text-base font-medium text-gray-700">
+                                        {candidate.first_name} {candidate.last_name || 'N/A'}
+                                    </p>
+                                    <p className="text-base text-gray-600">
+                                        {candidate.email || 'N/A'}
+                                    </p>
+                                </div>
+
+                                {/* Center Column: Location, Applied At */}
+                                <div className="flex-1 pl-10 space-y-4">
+                                    <p className="text-base font-medium text-gray-700">
+                                    <span className="text-blue-600 font-semibold">
+                                        {candidate.location || 'N/A'}
+                                    </span>
+                                    </p>
+                                    <p className="text-base text-gray-600">
+                                        Applied at: {candidate.applied_date || 'N/A'}
+                                    </p>
+                                </div>
+
+                                {/* Right Column: Action Buttons */}
+                                <div className="flex-1 flex justify-end items-start">
+                                    <div className="flex items-center gap-3">
                                         {user?.userRole !== 'recruited' && (
                                             <>
                                                 <Button
                                                     onClick={() => handleSendInvitationClick(candidate)}
-                                                    className="ext-base bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
+                                                    className="text-base bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
                                                 >
                                                     I'm Interested
                                                 </Button>
@@ -147,56 +173,30 @@ export default function CandidatesPage() {
                                                         fill={bookmarkedCandidateIds.includes(candidate.id) ? '#FFD700' : 'none'}
                                                     />
                                                 </motion.button>
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <motion.button
+                                                            whileHover={{ scale: 1.1 }}
+                                                            whileTap={{ scale: 0.9 }}
+                                                            className="p-1 text-gray-500 hover:text-gray-800 transition-colors duration-200"
+                                                            aria-label="More options"
+                                                        >
+                                                            <MoreVertical className="h-6 w-6" />
+                                                        </motion.button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent
+                                                        align="end"
+                                                        className="bg-white shadow-lg rounded-lg border border-gray-200"
+                                                    >
+                                                        <Link href={`/candidates/${candidate.id}`}>
+                                                            <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                                                                View Details
+                                                            </DropdownMenuItem>
+                                                        </Link>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
                                             </>
                                         )}
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <motion.button
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.9 }}
-                                                    className="p-1 text-gray-500 hover:text-gray-800 transition-colors duration-200"
-                                                    aria-label="More options"
-                                                >
-                                                    <MoreVertical className="h-6 w-6" />
-                                                </motion.button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent
-                                                align="end"
-                                                className="bg-white shadow-lg rounded-lg border border-gray-200"
-                                            >
-                                                <Link href={`/candidates/${candidate.id}`}>
-                                                    <DropdownMenuItem className="text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                                                        View Details
-                                                    </DropdownMenuItem>
-                                                </Link>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </div>
-
-                                    {/* Left Column: Name, Email, Phone */}
-                                    <div className="flex-1 space-y-4">
-                                        <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-                                            {candidate.headline || 'N/A'}
-                                        </h2>
-                                        <p className="text-base font-medium text-gray-700">
-                                            {candidate.first_name} {candidate.last_name || 'N/A'}
-                                        </p>
-                                        <p className="text-base text-gray-600">
-                                            {candidate.email || 'N/A'}
-                                        </p>
-                                    </div>
-
-                                    {/* Center Column: Status, Applied At */}
-                                    <div className="flex-1 space-y-2">
-                                        <p className="text-base font-medium text-gray-700">
-                                            <span className="text-blue-600 font-semibold">
-                        {candidate.location || 'N/A'}
-                      </span>
-                                        </p>
-                                        <p className="text-base text-gray-600">
-                                            Applied at:{' '}
-                                            {candidate.applied_date || 'N/A'}
-                                        </p>
                                     </div>
                                 </div>
                             </Card>
@@ -213,8 +213,8 @@ export default function CandidatesPage() {
                             Previous
                         </Button>
                         <span className="flex items-center px-4 text-gray-700 font-medium">
-              Page {page + 1} of {candidates.totalPages}
-            </span>
+                        Page {page + 1} of {candidates.totalPages}
+                    </span>
                         <Button
                             onClick={() => setPage((prev) => Math.min(prev + 1, candidates.totalPages - 1))}
                             disabled={page >= candidates.totalPages - 1}
