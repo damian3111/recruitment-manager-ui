@@ -130,7 +130,7 @@ export default function CandidatesPage() {
                                         {candidate.first_name} {candidate.last_name || 'N/A'}
                                     </p>
                                     <p className="text-base text-gray-600">
-                                        {candidate.email || 'N/A'}
+                                        {candidate.education || 'N/A'}
                                     </p>
                                 </div>
 
