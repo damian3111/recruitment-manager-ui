@@ -28,7 +28,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import JobFilters from "@/components/layout/filters/JobFilters";
 
-
 export default function JobsPage() {
     const { data: user } = useCurrentUser();
     const { data: candidate, refetch } = useCandidateByEmail(user?.email);
@@ -228,16 +227,42 @@ export default function JobsPage() {
                             transition={{ duration: 0.3 }}
                         >
                             <Card
-                                className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[12.5rem]"
+                                className="w-full p-8 rounded-2xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 min-h-[12.5rem] flex flex-row gap-4"
                             >
-                                <div className="relative flex">
-                                    <div className="absolute top-0 right-0 flex items-center gap-3">
+                                <div className="flex-1 space-y-4">
+                                    <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+                                        {job.title || 'N/A'}
+                                    </h2>
+                                    <p className="text-base font-medium text-gray-700">
+                                        {job.company || 'N/A'}
+                                    </p>
+                                    <p className="text-base text-gray-600">
+                                        {job.location || 'N/A'}
+                                    </p>
+                                </div>
+
+                                <div className="flex-1 space-y-4">
+                                    <p className="text-base font-medium text-gray-700">
+                                        Salary:{' '}
+                                        <span className="text-blue-600 font-semibold">
+                                        {job.salary_min && job.salary_max
+                                            ? `${job.salary_min} - ${job.salary_max} ${job.currency?.slice(0,15) || ''}`
+                                            : 'N/A'}
+                                    </span>
+                                    </p>
+                                    <p className="text-base text-gray-600">
+                                        {job.employment_mode || 'N/A'}
+                                    </p>
+                                </div>
+
+                                <div className="flex-1 flex justify-end items-start">
+                                    <div className="flex items-center gap-3">
                                         {user?.userRole !== 'recruiter' && (
                                             <>
                                                 {sentJobIds?.includes(job.id) ? (
                                                     <Button
                                                         onClick={() => handleCancel(job)}
-                                                        className="text-base bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+                                                        className="text-sm w-36 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                                                     >
                                                         Submitted
                                                     </Button>
@@ -245,13 +270,13 @@ export default function JobsPage() {
                                                     <div className="flex flex-col gap-2">
                                                         <Button
                                                             onClick={() => handleCancel(job)}
-                                                            className="text-base cursor-default bg-gray-500 text-white rounded-lg hover:bg-gray-500 transition-colors duration-200"
+                                                            className="text-sm w-36 cursor-default bg-gray-500 text-white rounded-lg hover:bg-gray-500 transition-colors duration-200"
                                                         >
                                                             Invitation Accepted
                                                         </Button>
                                                         <Button
                                                             onClick={() => handleRemoveRelation(job.id)}
-                                                            className="text-base bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
+                                                            className="text-sm w-36 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200"
                                                         >
                                                             Remove Relation
                                                         </Button>
@@ -267,7 +292,7 @@ export default function JobsPage() {
                                                 ) : (
                                                     <Button
                                                         onClick={() => handleSendInvitationClick(job)}
-                                                        className="text-base bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
+                                                        className="text-sm w-36 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors duration-200"
                                                     >
                                                         Apply
                                                     </Button>
@@ -313,32 +338,6 @@ export default function JobsPage() {
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </div>
-
-                                    <div className="flex-1 space-y-4">
-                                        <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-                                            {job.title || 'N/A'}
-                                        </h2>
-                                        <p className="text-base font-medium text-gray-700">
-                                            {job.company || 'N/A'}
-                                        </p>
-                                        <p className="text-base text-gray-600">
-                                            {job.location || 'N/A'}
-                                        </p>
-                                    </div>
-
-                                    <div className="flex-1 space-y-4">
-                                        <p className="text-base font-medium text-gray-700">
-                                            Salary:{' '}
-                                            <span className="text-blue-600 font-semibold">
-                                                {job.salary_min && job.salary_max
-                                                    ? `${job.salary_min} - ${job.salary_max} ${job.currency?.slice(0,15) || ''}`
-                                                    : 'N/A'}
-                                            </span>
-                                        </p>
-                                        <p className="text-base text-gray-600">
-                                            {job.employment_mode || 'N/A'}
-                                        </p>
-                                    </div>
                                 </div>
                             </Card>
                         </motion.div>
@@ -354,8 +353,8 @@ export default function JobsPage() {
                             Previous
                         </Button>
                         <span className="flex items-center px-4 text-gray-700 font-medium">
-                            Page {page + 1} of {jobs.totalPages}
-                        </span>
+                        Page {page + 1} of {jobs.totalPages}
+                    </span>
                         <Button
                             onClick={() => setPage((prev) => Math.min(prev + 1, jobs.totalPages - 1))}
                             disabled={page >= jobs.totalPages - 1}
