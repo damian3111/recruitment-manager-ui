@@ -5,7 +5,7 @@ const publicRoutes = ['/login', '/register']
 
 export default async function middleware(req: NextRequest) {
     const path = req.nextUrl.pathname;
-    const isPublicRoute = publicRoutes.includes(path);
+    const isPublicRoute = publicRoutes.includes(path) || path.startsWith('/confirm-email/');
     const secret = Buffer.from(process.env.JWT_SECRET!, 'base64');
     const token = req.cookies.get("authToken")?.value ?? "";
 
