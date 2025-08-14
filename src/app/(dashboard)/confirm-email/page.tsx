@@ -44,7 +44,7 @@ export default function ConfirmEmailPage() {
                         <IconExclamationCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
                         <h1 className="text-2xl font-bold text-gray-800 mb-2">Confirmation Failed</h1>
                         <p className="text-gray-600 mb-6">
-                            {parseMessage(error?.response?.data || 'An error occurred during confirmation.')}
+                            {parseMessage('An error occurred during confirmation.')}
                         </p>
                         <Link
                             href="/"
