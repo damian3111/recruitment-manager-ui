@@ -39,7 +39,6 @@ export default function RegisterPage() {
         },
         onSuccess: () => {
             toast.success("Registration successful!");
-            toast.success('Check your email inbox and activate your account');
             router.push("/login");
         },
         onError: (error) => {
