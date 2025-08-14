@@ -1,16 +1,17 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation'; // Use useParams instead of useSearchParams
 import { useConfirmEmail } from '@/lib/emailService'; // Adjust path as needed
 import { IconCheck, IconExclamationCircle } from '@tabler/icons-react';
+import { AxiosError } from 'axios'; // For proper error typing
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function ConfirmEmailPage() {
-    const searchParams = useSearchParams();
-    const token = searchParams.get('token');
+    const params = useParams();
+    const token = params?.token; // Get token from dynamic route
 
-    if (!token) {
+    if (!token || typeof token !== 'string') {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
                 <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full text-center">
@@ -44,7 +45,9 @@ export default function ConfirmEmailPage() {
                         <IconExclamationCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
                         <h1 className="text-2xl font-bold text-gray-800 mb-2">Confirmation Failed</h1>
                         <p className="text-gray-600 mb-6">
-                            {parseMessage('An error occurred during confirmation.')}
+                            {parseMessage(
+                        'An error occurred during confirmation.'
+                            )}
                         </p>
                         <Link
                             href="/"
@@ -68,7 +71,7 @@ export default function ConfirmEmailPage() {
                 )}
                 {/* Optional branding footer */}
                 <div className="mt-8 text-gray-500 text-sm">
-                    <p>Powered by</p>
+                    <p>Powered by YourAppName</p>
                     {/* Replace with your logo or remove if not needed */}
                     {/* <Image src="/logo.png" alt="YourAppName" width={100} height={30} className="mx-auto mt-2" /> */}
                 </div>
