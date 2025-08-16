@@ -38,7 +38,7 @@ export default function RegisterPage() {
             return axios.post(`${BACKEND_URL}/users`, data);
         },
         onSuccess: () => {
-            toast.success("Registration successful!");frec
+            toast.success("Registration successful!");
             router.push("/login");
         },
         onError: (error) => {
