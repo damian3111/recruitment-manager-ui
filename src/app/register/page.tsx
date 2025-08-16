@@ -38,7 +38,7 @@ export default function RegisterPage() {
             return axios.post(`${BACKEND_URL}/users`, data);
         },
         onSuccess: () => {
-            toast.success("Registration successful!");
+            toast.success("Registration successful!");frec
             router.push("/login");
         },
         onError: (error) => {
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                             {...register("userRole")}
                             className="w-full mb-10 p-3 bg-gray-900/50 border border-gray-700/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
                         >
-                            <option value="recruited">Recruited</option>
+                            <option value="recruited">Candidate</option>
                             <option value="recruiter">Recruiter</option>
                         </select>
                         {errors.userRole && (
